@@ -1,2 +1,5 @@
 pyTelegramBotAPI==4.10.0
 coloredlogs==15.0.1
+psycopg2==2.9.5
+alembic==1.9.4
+SQLAlchemy==2.0.4
