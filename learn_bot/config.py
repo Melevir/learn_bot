@@ -8,10 +8,23 @@ class BotConfig:
     db_dsn: str
     db_echo: bool
 
+    airtable_api_token: str
+    airtable_database_id: str
+    airtable_course_table_id: str
+    airtable_students_table_id: str
+    airtable_groups_table_id: str
+    airtable_curators_table_id: str
+
 
 def get_config() -> BotConfig:
     return BotConfig(
         telegram_token=os.environ.get("TELEGRAM_BOT_TOKEN"),
         db_dsn=os.environ.get("DATABASE_DSN"),
         db_echo="DATABASE_ECHO" in os.environ,
+        airtable_api_token=os.environ.get("AIRTABLE_API_TOKEN"),
+        airtable_database_id=os.environ.get("AIRTABLE_DATABASE_ID"),
+        airtable_course_table_id=os.environ.get("AIRTABLE_COURSE_TABLE_ID"),
+        airtable_students_table_id=os.environ.get("AIRTABLE_STUDENTS_TABLE_ID"),
+        airtable_groups_table_id=os.environ.get("AIRTABLE_GROUPS_TABLE_ID"),
+        airtable_curators_table_id=os.environ.get("AIRTABLE_CURATORS_TABLE_ID"),
     )

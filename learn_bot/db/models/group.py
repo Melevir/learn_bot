@@ -15,8 +15,9 @@ class Group(Base):
     enrollment_id: Mapped[int] = mapped_column(ForeignKey("enrollment.id"))
     curator_id: Mapped[int] = mapped_column(ForeignKey("curator.id"))
 
-    enrollment: Mapped[Enrollment] = relationship(back_populates="curators")
+    enrollment: Mapped[Enrollment] = relationship(back_populates="groups")
     curator: Mapped[Curator] = relationship(back_populates="groups")
+    students: Mapped[list["Student"]] = relationship()
 
     def __repr__(self) -> str:
         return f"Group #{self.id} of enrollment {self.enrollment_id}"

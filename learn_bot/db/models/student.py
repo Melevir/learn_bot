@@ -11,7 +11,7 @@ class Student(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     first_name: Mapped[str] = mapped_column(String(length=256))
     last_name: Mapped[str] = mapped_column(String(length=256))
-    telegram_nickname: Mapped[str] = mapped_column(String(length=256))
+    telegram_nickname: Mapped[str | None] = mapped_column(String(length=256))
     telegram_chat_id: Mapped[str | None] = mapped_column(String(length=256))
 
     group_id: Mapped[int] = mapped_column(ForeignKey("group.id"))

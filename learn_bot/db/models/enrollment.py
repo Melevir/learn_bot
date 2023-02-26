@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from learn_bot.db import Course
@@ -17,6 +17,7 @@ class Enrollment(Base):
     course_id: Mapped[int] = mapped_column(ForeignKey("course.id"))
 
     course: Mapped[Course] = relationship(back_populates="enrollments")
+    groups: Mapped[list["Group"]] = relationship()
 
     def __repr__(self) -> str:
         return f"Enrollment #{self.number} of {self.course}"
