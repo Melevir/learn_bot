@@ -21,3 +21,8 @@ class Enrollment(Base):
 
     def __repr__(self) -> str:
         return f"Enrollment #{self.number} of {self.course}"
+
+    @property
+    def is_active(self) -> bool:
+        today = datetime.date.today()
+        return self.date_start <= today <= self.date_end

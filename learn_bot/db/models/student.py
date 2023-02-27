@@ -17,6 +17,7 @@ class Student(Base):
     group_id: Mapped[int] = mapped_column(ForeignKey("group.id"))
 
     group: Mapped[Group] = relationship(back_populates="students")
+    assignments: Mapped[list["Assignment"]] = relationship()
 
     def __repr__(self) -> str:
         return f"Student {self.first_name} {self.last_name}"

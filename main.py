@@ -10,7 +10,7 @@ from learn_bot.logs import configure_logging
 
 
 def run_bot(bot: TeleBot) -> NoReturn:
-    bot.infinity_polling()
+    bot.infinity_polling(restart_on_change=True)
 
 
 if __name__ == "__main__":

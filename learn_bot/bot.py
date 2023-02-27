@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session
 from telebot import TeleBot
 
 from learn_bot.config import BotConfig
-from learn_bot.handlers import start_handler
 
 
 class BotWithDatabaseAccessMixin:
@@ -23,6 +22,8 @@ class Bot(BotWithDatabaseAccessMixin, TeleBot):
 
 
 def _configure_handlers(bot: TeleBot, config: BotConfig) -> None:
+    from learn_bot.handlers import start_handler
+
     bot.message_handler(commands=["start"])(functools.partial(start_handler, bot=bot, config=config))
 
 
