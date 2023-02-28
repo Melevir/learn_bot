@@ -2,11 +2,12 @@ from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from learn_bot.db.base import Base
+from learn_bot.db.mixins import TimestampsMixin
 from learn_bot.db.models.curator import Curator
 from learn_bot.db.models.enrollment import Enrollment
 
 
-class Group(Base):
+class Group(TimestampsMixin, Base):
     __tablename__ = "group"
 
     id: Mapped[int] = mapped_column(primary_key=True)

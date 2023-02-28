@@ -2,10 +2,11 @@ from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from learn_bot.db.base import Base
+from learn_bot.db.mixins import TimestampsMixin
 from learn_bot.db.models.group import Group
 
 
-class Student(Base):
+class Student(TimestampsMixin, Base):
     __tablename__ = "student"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -21,3 +22,7 @@ class Student(Base):
 
     def __repr__(self) -> str:
         return f"Student {self.first_name} {self.last_name}"
+
+    @property
+    def full_name(self) -> str:
+        return f"{self.first_name} {self.last_name}"

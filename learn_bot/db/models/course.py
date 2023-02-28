@@ -2,8 +2,10 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from learn_bot.db.base import Base
+from learn_bot.db.mixins import TimestampsMixin
 
-class Course(Base):
+
+class Course(TimestampsMixin, Base):
     __tablename__ = "course"
 
     id: Mapped[int] = mapped_column(primary_key=True)

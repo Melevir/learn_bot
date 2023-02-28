@@ -1,15 +1,18 @@
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, Enum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from learn_bot.db import Student
 from learn_bot.db.base import Base
+from learn_bot.db.enums import AssignmentStatus
+from learn_bot.db.mixins import TimestampsMixin
 
 
-class Assignment(Base):
+class Assignment(TimestampsMixin, Base):
     __tablename__ = "assignment"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     url: Mapped[str] = mapped_column(String(length=512))
+    status: Mapped[AssignmentStatus] = mapped_column(Enum(AssignmentStatus))
 
     student_id: Mapped[int] = mapped_column(ForeignKey("student.id"))
 

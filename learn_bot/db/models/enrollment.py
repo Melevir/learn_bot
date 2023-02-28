@@ -5,9 +5,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from learn_bot.db import Course
 from learn_bot.db.base import Base
+from learn_bot.db.mixins import TimestampsMixin
 
 
-class Enrollment(Base):
+class Enrollment(TimestampsMixin, Base):
     __tablename__ = "enrollment"
 
     id: Mapped[int] = mapped_column(primary_key=True)

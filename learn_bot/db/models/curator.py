@@ -2,9 +2,10 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from learn_bot.db.base import Base
+from learn_bot.db.mixins import TimestampsMixin
 
 
-class Curator(Base):
+class Curator(TimestampsMixin, Base):
     __tablename__ = "curator"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -17,3 +18,7 @@ class Curator(Base):
 
     def __repr__(self) -> str:
         return f"Curator {self.first_name} {self.last_name}"
+
+    @property
+    def full_name(self) -> str:
+        return f"{self.first_name} {self.last_name}"
