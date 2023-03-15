@@ -7,6 +7,7 @@ from learn_bot.commands_manager.argparser import compose_command_argparser
 from learn_bot.commands_manager.runner import run_command
 from learn_bot.config import get_config
 from learn_bot.logs import configure_logging
+from learn_bot.sentry import configure_sentry
 
 
 def run_bot(bot: TeleBot) -> NoReturn:
@@ -14,8 +15,11 @@ def run_bot(bot: TeleBot) -> NoReturn:
 
 
 if __name__ == "__main__":
-    configure_logging()
     config = get_config()
+
+    configure_logging()
+    configure_sentry(config.sentry_dsn)
+
     bot = compose_bot(config)
     args = compose_command_argparser().parse_args()
     if args.command:

@@ -1,6 +1,7 @@
 import functools
 from typing import Any
 
+import sentry_sdk
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session
 from telebot import TeleBot
@@ -21,6 +22,11 @@ class Bot(BotWithDatabaseAccessMixin, TeleBot):
     pass
 
 
+class SentryExceptionHandler:
+    def handle(self, exception):
+        return sentry_sdk.capture_exception(exception)
+
+
 def _configure_handlers(bot: TeleBot, config: BotConfig) -> None:
     from learn_bot.handlers import start_handler
 
@@ -29,7 +35,12 @@ def _configure_handlers(bot: TeleBot, config: BotConfig) -> None:
 
 def compose_bot(config: BotConfig) -> Bot:
     db_engine = create_engine(config.db_dsn, echo=config.db_echo)
-    bot = Bot(token=config.telegram_token, colorful_logs=True, db_engine=db_engine)
+    bot = Bot(
+        token=config.telegram_token,
+        colorful_logs=True,
+        db_engine=db_engine,
+        exception_handler=SentryExceptionHandler(),
+    )
 
     _configure_handlers(bot, config)
 

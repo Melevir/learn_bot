@@ -5,6 +5,9 @@ import os
 @dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
 class BotConfig:
     telegram_token: str
+
+    sentry_dsn: str
+
     db_dsn: str
     db_echo: bool
 
@@ -19,6 +22,7 @@ class BotConfig:
 def get_config() -> BotConfig:
     return BotConfig(
         telegram_token=os.environ.get("TELEGRAM_BOT_TOKEN"),
+        sentry_dsn=os.environ.get("SENTRY_DSN"),
         db_dsn=os.environ.get("DATABASE_DSN"),
         db_echo="DATABASE_ECHO" in os.environ,
         airtable_api_token=os.environ.get("AIRTABLE_API_TOKEN"),
