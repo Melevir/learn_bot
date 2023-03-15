@@ -8,11 +8,13 @@ from learn_bot.config import BotConfig
 from learn_bot.db import Assignment
 from learn_bot.db.changers import update, create
 from learn_bot.db.enums import AssignmentStatus
-from learn_bot.db.fetchers import fetch_curator_by_telegram_nickname, fetch_student_by_telegram_nickname
-from learn_bot.db.utils.urls import is_valid_github_url, is_url_accessible
+from learn_bot.db.fetchers import fetch_curator_by_telegram_nickname, fetch_student_by_telegram_nickname, \
+    fetch_assignments_for_curator, fetch_oldest_pending_assignment_for_curator, fetch_assignment_by_id
+from learn_bot.db.utils.urls import is_valid_github_url, is_url_accessible, is_github_pull_request_url
 from learn_bot.markups import compose_curator_menu_markup, compose_student_menu_markup, \
-    compose_post_submit_assignment_markup
-from learn_bot.services.assignment import handle_new_assignment
+    compose_post_submit_assignment_markup, compose_curator_assignments_list_markup, \
+    compose_curator_assignment_pull_request_check_markup
+from learn_bot.services.assignment import handle_new_assignment, handle_assignment_checked
 
 logger = logging.getLogger(__name__)
 
@@ -75,9 +77,75 @@ def list_pending_assignments_handle(message: Message, bot: Bot, config: BotConfi
         if curator is None:
             return
 
-        assignments = []
+        assignments = fetch_assignments_for_curator(
+            curator.id,
+            statuses=[AssignmentStatus.READY_FOR_REVIEW],
+            session=session,
+        )
         reply_text = f"У тебя {len(assignments) or 'нет'} заданий на проверку"
-        bot.reply_to(message, reply_text)
+        bot.register_next_step_handler(
+            message,
+            functools.partial(start_assignments_check_handle, bot=bot, config=config),
+        )
+        bot.reply_to(message, reply_text, reply_markup=compose_curator_assignments_list_markup())
+
+
+def start_assignments_check_handle(message: Message, bot: Bot, config: BotConfig) -> None:
+    with bot.get_session() as session:
+        curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
+        if curator is None:
+            return
+    if message.text == "Позже":
+        return
+    else:
+        check_oldest_pending_assignment(message, bot, config)
+
+def check_oldest_pending_assignment(message: Message, bot: Bot, config: BotConfig) -> None:
+    with bot.get_session() as session:
+        curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
+        if curator is None:
+            return
+    assignment = fetch_oldest_pending_assignment_for_curator(curator.id, session=session)
+
+    bot.send_message(message.chat.id, f"{assignment.student.full_name} сдал работу: {assignment.url}")
+    if is_github_pull_request_url(assignment.url):
+        bot.register_next_step_handler(
+            message,
+            functools.partial(curator_checked_assignment, bot=bot, config=config, assignment_id=assignment.id),
+        )
+        bot.send_message(
+            message.chat.id,
+            "Это ссылка на пул-реквест, так что откомментируй работу прямо на Гитхабе",
+            reply_markup=compose_curator_assignment_pull_request_check_markup(),
+        )
+    else:
+        bot.register_next_step_handler(
+            message,
+            functools.partial(curator_checked_assignment, bot=bot, config=config, assignment_id=assignment.id),
+        )
+        bot.send_message(
+            message.chat.id,
+            "Это не похоже на пул-реквест, поэтому напиши ревью одним сообщением мне в ответ, я перешлю его студенту.",
+        )
+
+
+def curator_checked_assignment(message: Message, bot: Bot, config: BotConfig, assignment_id: int) -> None:
+    with bot.get_session() as session:
+        curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
+        assignment = fetch_assignment_by_id(assignment_id, session)
+    if message.text != "Готово":
+        assignment.curator_feedback = message.text
+    assignment.status = AssignmentStatus.REVIEWED
+    with bot.get_session() as session:
+        update(assignment, session)
+        handle_assignment_checked(assignment, bot)
+
+    with bot.get_session() as session:
+        next_assignment = fetch_oldest_pending_assignment_for_curator(curator.id, session=session)
+    if next_assignment:
+        return check_oldest_pending_assignment(message, bot, config)
+    else:
+        bot.send_message(message.chat.id, "Все задания проверены. Хорошая работа!")
 
 
 def submit_assignment_handle(message: Message, bot: Bot, config: BotConfig) -> None:
