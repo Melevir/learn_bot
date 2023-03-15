@@ -24,7 +24,7 @@ def process_enrollment(
 ) -> Mapping[str, int]:
     enrollments_table = Table(config.airtable_api_token, config.airtable_database_id, config.airtable_course_table_id)
     enrollments = enrollments_table.all()
-    enrollment = [e for e in enrollments if e["fields"]["course_number"] == str(course_num_to_import)][0]
+    enrollment = [e for e in enrollments if e["fields"].get("course_number") == str(course_num_to_import)][0]
     db_enrollment = Enrollment(
         number=course_num_to_import,
         date_start=datetime.date.fromisoformat(enrollment["fields"]["start_date"]),
