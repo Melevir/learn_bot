@@ -1,7 +1,11 @@
 import dataclasses
-from typing import Mapping
+from typing import Mapping, Callable
 
-from telebot.types import ReplyKeyboardMarkup
+from telebot.types import ReplyKeyboardMarkup, Message
+
+from learn_bot.bot import Bot
+from learn_bot.config import BotConfig
+from learn_bot.screenplay.db.models.user import User
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
@@ -13,3 +17,10 @@ class ActResult:
     context: Mapping[str, str] | None = None
     is_screenplay_over: bool = False
     play_next_act_now: bool = False
+
+PlayHandler = Callable[[User, Mapping[str, str], Message, Bot, BotConfig], ActResult]
+
+@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
+class ScreenPlay:
+    name: str
+    acts: list[tuple[str, PlayHandler]]
