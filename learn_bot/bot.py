@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from telebot import TeleBot
 
 from learn_bot.config import BotConfig
+from learn_bot.screenplay.director import ScreenplayDirector
 
 
 class BotWithDatabaseAccessMixin:
@@ -18,7 +19,13 @@ class BotWithDatabaseAccessMixin:
         return Session(self.db_engine)
 
 
-class Bot(BotWithDatabaseAccessMixin, TeleBot):
+class BotWithScreenplayDirectorMixin:
+    def __init__(self, screenplay_director: ScreenplayDirector, *args: Any, **kwargs: Any) -> None:
+        self.screenplay_director = screenplay_director
+        super().__init__(*args, **kwargs)
+
+
+class Bot(BotWithDatabaseAccessMixin, BotWithScreenplayDirectorMixin, TeleBot):
     pass
 
 
@@ -28,9 +35,15 @@ class SentryExceptionHandler:
 
 
 def _configure_handlers(bot: TeleBot, config: BotConfig) -> None:
-    from learn_bot.handlers import start_handler
+    from learn_bot.handlers import start_handler, message_handler
 
-    bot.message_handler(commands=["start"])(functools.partial(start_handler, bot=bot, config=config))
+    bot.register_message_handler(
+        functools.partial(start_handler, bot=bot, config=config),
+        commands=["start"],
+    )
+    bot.register_message_handler(
+        functools.partial(message_handler, bot=bot, config=config),
+    )
 
 
 def compose_bot(config: BotConfig) -> Bot:
@@ -38,8 +51,11 @@ def compose_bot(config: BotConfig) -> Bot:
     bot = Bot(
         token=config.telegram_token,
         colorful_logs=True,
-        db_engine=db_engine,
         exception_handler=SentryExceptionHandler(),
+        threaded=False,
+
+        db_engine=db_engine,
+        screenplay_director=ScreenplayDirector()
     )
 
     _configure_handlers(bot, config)

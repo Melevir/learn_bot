@@ -14,12 +14,37 @@ from learn_bot.db.utils.urls import is_valid_github_url, is_url_accessible, is_g
 from learn_bot.markups import compose_curator_menu_markup, compose_student_menu_markup, \
     compose_post_submit_assignment_markup, compose_curator_assignments_list_markup, \
     compose_curator_assignment_pull_request_check_markup
+from learn_bot.screenplay.db.changers import get_or_create_user_from
+from learn_bot.screenplay.db.fetchers import fetch_user_by_chat_id
+from learn_bot.screenplay.services.play_act import play_active_act_for
 from learn_bot.services.assignment import handle_new_assignment, handle_assignment_checked
 
 logger = logging.getLogger(__name__)
 
 
+def message_handler(message: Message, bot: Bot, config: BotConfig) -> None:
+    with bot.get_session() as session:
+        user = fetch_user_by_chat_id(message.chat.id, session)
+    play_active_act_for(user, message, bot, config)
+
+
 def start_handler(message: Message, bot: Bot, config: BotConfig) -> None:
+    with bot.get_session() as session:
+        user = get_or_create_user_from(
+            message,
+            session,
+            active_screenplay_id='student.submit_assignment',
+            active_act_id='intro',
+        )
+        play_active_act_for(user, message, bot, config)
+
+
+##########################################################
+
+
+def old_start_handler(message: Message, bot: Bot, config: BotConfig) -> None:
+    bot.reply_to(message, "start")
+    return
     with bot.get_session() as session:
         curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
         student = fetch_student_by_telegram_nickname(message.from_user.username, session)
@@ -28,7 +53,7 @@ def start_handler(message: Message, bot: Bot, config: BotConfig) -> None:
             active_groups = [g for g in curator.groups if g.enrollment.is_active]
             active_groups_num = len(active_groups)
             groups_word = "группа" if active_groups_num == 1 else "группы"
-            if curator.telegram_chat_id:
+            if curator.telegram_chat_id is None:
                 curator.telegram_chat_id = message.chat.id
                 update(curator, session)
             reply_text = f"Привет, {curator.first_name}. У тебя {len(active_groups)} {groups_word}."
@@ -68,7 +93,6 @@ def start_handler(message: Message, bot: Bot, config: BotConfig) -> None:
                 ),
                 reply_markup=compose_student_menu_markup(),
             )
-
 
 
 def list_pending_assignments_handle(message: Message, bot: Bot, config: BotConfig) -> None:
