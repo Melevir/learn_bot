@@ -46,12 +46,12 @@ class SentryExceptionHandler:
         return sentry_sdk.capture_exception(exception)
 
 
-def _configure_handlers(bot: TeleBot, config: BotConfig) -> None:
-    from learn_bot.handlers import start_handler, message_handler
+def _configure_handlers(bot: Bot, config: BotConfig) -> None:
+    from learn_bot.handlers import command_handler, message_handler
 
     bot.register_message_handler(
-        functools.partial(start_handler, bot=bot, config=config),
-        commands=["start"],
+        functools.partial(command_handler, bot=bot, config=config),
+        commands=["start"] + bot.screenplay_director.get_all_commands(),
     )
     bot.register_message_handler(
         functools.partial(message_handler, bot=bot, config=config),
