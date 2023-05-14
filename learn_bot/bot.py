@@ -1,6 +1,6 @@
 from __future__ import annotations
 import functools
-from typing import Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING, Callable
 
 import sentry_sdk
 from sqlalchemy import Engine, create_engine
@@ -8,14 +8,23 @@ from sqlalchemy.orm import Session
 from telebot import TeleBot
 
 from learn_bot.config import BotConfig
+from learn_bot.db.fetchers import fetch_role_by_user
+from learn_bot.screenplay.db.models.user import User
 
 if TYPE_CHECKING:
     from learn_bot.screenplay.director import ScreenplayDirector
 
 
 class BotWithDatabaseAccessMixin:
-    def __init__(self, db_engine: Engine, *args: Any, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        db_engine: Engine,
+        role_provider: Callable[[User, Session], str | None],
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         self.db_engine = db_engine
+        self.role_provider = role_provider
         super().__init__(*args, **kwargs)
 
     def get_session(self) -> Session:
@@ -61,22 +70,28 @@ def _compose_screenplay_director() -> ScreenplayDirector:
     director.register_play(
         ScreenPlay(
             name="student.submit_assignment",
+            short_description="сдать работу на проверку",
             acts=[
                 ("intro", intro),
                 ("create_assignment", create_assignment),
                 ("one_more_assignment", one_more_assignment),
             ],
+            allowed_for_roles=["student"],
+            command_to_start="submit",
         ),
     )
     director.register_play(
         ScreenPlay(
             name="curator.check_assignment",
+            short_description="проверить работы",
             acts=[
                 ("list", list_pending_assignments),
                 ("start", start_assignments_check),
                 ("check", check_oldest_pending_assignment),
                 ("checked", finished_assignment_check),
             ],
+            allowed_for_roles=["curator"],
+            command_to_start="check",
         ),
     )
     return director
@@ -95,6 +110,7 @@ def compose_bot(config: BotConfig) -> Bot:
 
         db_engine=db_engine,
         screenplay_director=director,
+        role_provider=fetch_role_by_user,
     )
 
     _configure_handlers(bot, config)

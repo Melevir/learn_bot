@@ -60,8 +60,8 @@ def clean_screenplay_context(user_id: int, screenplay_id: str, session: Session)
 def get_or_create_user_from(
     message: Message,
     session: Session,
-    active_screenplay_id: str,
-    active_act_id: str,
+    active_screenplay_id: str | None = None,
+    active_act_id: str | None = None,
 ) -> User:
     if user := fetch_user_by_telegram_nickname(message.from_user.username, session):
         return user

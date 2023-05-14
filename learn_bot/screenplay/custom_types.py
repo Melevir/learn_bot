@@ -24,3 +24,6 @@ PlayHandler = Callable[[User, Mapping[str, str], Message, Bot, BotConfig], ActRe
 class ScreenPlay:
     name: str
     acts: list[tuple[str, PlayHandler]]
+    allowed_for_roles: list[str]
+    short_description: str
+    command_to_start: str | None = None

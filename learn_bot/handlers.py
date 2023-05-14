@@ -27,10 +27,22 @@ def start_handler(message: Message, bot: Bot, config: BotConfig) -> None:
         user = get_or_create_user_from(
             message,
             session,
-            active_screenplay_id='student.submit_assignment',
-            active_act_id='intro',
         )
-        play_active_act_for(user, message, bot, config)
+        if user.active_screenplay_id:
+            play_active_act_for(user, message, bot, config)
+        else:
+            with bot.get_session() as session:
+                role = bot.role_provider(user, session)
+            if role is None:
+                bot.send_message(message.chat.id, "Кажется, мы с вами не знакомы.")
+                return
+            allowed_plays = [p for p in bot.screenplay_director.fetch_plays_for_role(role) if p.command_to_start]
+            allowed_commands_lines = '\n'.join([
+                f"- /{p.command_to_start} – {p.short_description}"
+                for p in allowed_plays
+            ])
+            message_text = f"Вам доступны следующие команды:\n{allowed_commands_lines}"
+            bot.send_message(message.chat.id, message_text)
 
 
 ##########################################################
