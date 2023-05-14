@@ -5,19 +5,13 @@ from telebot.types import Message
 
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
-from learn_bot.db import Assignment
-from learn_bot.db.changers import update, create
-from learn_bot.db.enums import AssignmentStatus
-from learn_bot.db.fetchers import fetch_curator_by_telegram_nickname, fetch_student_by_telegram_nickname, \
-    fetch_assignments_for_curator, fetch_oldest_pending_assignment_for_curator, fetch_assignment_by_id
-from learn_bot.db.utils.urls import is_valid_github_url, is_url_accessible, is_github_pull_request_url
-from learn_bot.markups import compose_curator_menu_markup, compose_student_menu_markup, \
-    compose_post_submit_assignment_markup, compose_curator_assignments_list_markup, \
-    compose_curator_assignment_pull_request_check_markup
+from learn_bot.db.changers import update
+from learn_bot.db.fetchers import fetch_curator_by_telegram_nickname, fetch_student_by_telegram_nickname
+from learn_bot.markups import compose_curator_menu_markup, compose_student_menu_markup
 from learn_bot.screenplay.db.changers import get_or_create_user_from
 from learn_bot.screenplay.db.fetchers import fetch_user_by_chat_id
 from learn_bot.screenplay.services.play_act import play_active_act_for
-from learn_bot.services.assignment import handle_new_assignment, handle_assignment_checked
+
 
 logger = logging.getLogger(__name__)
 

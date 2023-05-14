@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from telebot.types import Message
 
 from learn_bot.db.changers import create
-from learn_bot.screenplay.db.fetchers import fetch_screenplay_context, fetch_user_by_chat_id
+from learn_bot.screenplay.db.fetchers import fetch_screenplay_context, fetch_user_by_telegram_nickname
 from learn_bot.screenplay.db.models.screenplay_context import ScreenplayContext
 from learn_bot.screenplay.db.models.user import User
 
@@ -26,8 +26,7 @@ def update_screenplay_context(
     screenplay_id: str,
     session: Session,
 ) -> None:
-    context = fetch_screenplay_context(user_id, screenplay_id, session)
-    if context:
+    if context := fetch_screenplay_context(user_id, screenplay_id, session):
         context |= new_context
         session.execute(
             update(ScreenplayContext).where(
@@ -58,8 +57,13 @@ def clean_screenplay_context(user_id: int, screenplay_id: str, session: Session)
     session.commit()
 
 
-def get_or_create_user_from(message: Message, session: Session, active_screenplay_id: str, active_act_id: str) -> User:
-    if user := fetch_user_by_chat_id(message.chat.id, session):
+def get_or_create_user_from(
+    message: Message,
+    session: Session,
+    active_screenplay_id: str,
+    active_act_id: str,
+) -> User:
+    if user := fetch_user_by_telegram_nickname(message.from_user.username, session):
         return user
     user = User(
         first_name=message.from_user.first_name,
