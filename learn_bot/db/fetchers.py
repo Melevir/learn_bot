@@ -15,7 +15,7 @@ def fetch_courses(session: Session) -> list[Course]:
 def fetch_curator_by_telegram_nickname(nickname: str, session: Session) -> Curator | None:
     return session.scalar(
         select(Curator).where(
-            Curator.telegram_nickname == nickname,
+            Curator.telegram_nickname == nickname.lower(),
         )
     )
 
