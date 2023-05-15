@@ -11,6 +11,8 @@ class BotConfig:
     db_dsn: str
     db_echo: bool
 
+    restart_on_change: bool
+
     airtable_api_token: str
     airtable_database_id: str
     airtable_course_table_id: str
@@ -25,6 +27,7 @@ def get_config() -> BotConfig:
         sentry_dsn=os.environ.get("SENTRY_DSN"),
         db_dsn=os.environ.get("DATABASE_DSN"),
         db_echo="DATABASE_ECHO" in os.environ,
+        restart_on_change="RESTART_ON_CHANGE" in os.environ,
         airtable_api_token=os.environ.get("AIRTABLE_API_TOKEN"),
         airtable_database_id=os.environ.get("AIRTABLE_DATABASE_ID"),
         airtable_course_table_id=os.environ.get("AIRTABLE_COURSE_TABLE_ID"),

@@ -5,13 +5,13 @@ from telebot import TeleBot
 from learn_bot.bot import compose_bot
 from learn_bot.commands_manager.argparser import compose_command_argparser
 from learn_bot.commands_manager.runner import run_command
-from learn_bot.config import get_config
+from learn_bot.config import get_config, BotConfig
 from learn_bot.logs import configure_logging
 from learn_bot.sentry import configure_sentry
 
 
-def run_bot(bot: TeleBot) -> NoReturn:
-    bot.infinity_polling(restart_on_change=True)
+def run_bot(bot: TeleBot, config: BotConfig) -> NoReturn:
+    bot.infinity_polling(restart_on_change=config.restart_on_change)
 
 
 if __name__ == "__main__":
@@ -30,4 +30,4 @@ if __name__ == "__main__":
             commands_module="learn_bot.commands",
         )
     else:
-        run_bot(bot)
+        run_bot(bot, config)
