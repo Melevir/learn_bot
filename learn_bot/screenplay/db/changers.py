@@ -68,7 +68,7 @@ def get_or_create_user_from(
     user = User(
         first_name=message.from_user.first_name,
         last_name=message.from_user.last_name,
-        telegram_nickname=message.from_user.username,
+        telegram_nickname=message.from_user.username.lower(),
         telegram_chat_id=str(message.chat.id),
         active_screenplay_id=active_screenplay_id,
         active_act_id=active_act_id,

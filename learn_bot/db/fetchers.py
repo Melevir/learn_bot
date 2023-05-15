@@ -23,7 +23,7 @@ def fetch_curator_by_telegram_nickname(nickname: str, session: Session) -> Curat
 def fetch_student_by_telegram_nickname(nickname: str, session: Session) -> Student | None:
     return session.scalar(
         select(Student).where(
-            Student.telegram_nickname == nickname,
+            Student.telegram_nickname == nickname.lower(),
         )
     )
 
