@@ -7,12 +7,12 @@ from learn_bot.config import BotConfig
 from learn_bot.db import Assignment
 from learn_bot.db.changers import create
 from learn_bot.db.enums import AssignmentStatus
-from learn_bot.db.fetchers import fetch_student_by_telegram_nickname
 from learn_bot.db.utils.urls import is_valid_github_url, is_url_accessible
 from learn_bot.markups import compose_post_submit_assignment_markup
 from learn_bot.screenplay.custom_types import ActResult
 from learn_bot.screenplay.db.models.user import User
 from learn_bot.services.assignment import handle_new_assignment
+from learn_bot.services.student import fetch_student_from_message
 
 
 def intro(user: User, context: Mapping[str, str], message: Message, bot: Bot, config: BotConfig) -> ActResult:
@@ -52,7 +52,7 @@ def create_assignment(
             ],
         )
     with bot.get_session() as session:
-        student = fetch_student_by_telegram_nickname(message.from_user.username, session)
+        student = fetch_student_from_message(message, session)
         assignment = Assignment(url=assignment_url, student_id=student.id, status=AssignmentStatus.READY_FOR_REVIEW)
         create(assignment, session)
         handle_new_assignment(assignment, bot)

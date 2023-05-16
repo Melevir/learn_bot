@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 from telebot.types import Message
 
 from learn_bot.db.changers import create
-from learn_bot.screenplay.db.fetchers import fetch_screenplay_context, fetch_user_by_telegram_nickname
+from learn_bot.screenplay.db.fetchers import fetch_screenplay_context, fetch_user_by_telegram_nickname, \
+    fetch_user_by_chat_id
 from learn_bot.screenplay.db.models.screenplay_context import ScreenplayContext
 from learn_bot.screenplay.db.models.user import User
 
@@ -65,10 +66,12 @@ def get_or_create_user_from(
 ) -> User:
     if user := fetch_user_by_telegram_nickname(message.from_user.username, session):
         return user
+    if user := fetch_user_by_chat_id(message.chat.id, session):
+        return user
     user = User(
         first_name=message.from_user.first_name,
         last_name=message.from_user.last_name,
-        telegram_nickname=message.from_user.username.lower(),
+        telegram_nickname=message.from_user.username.lower() if message.from_user.username else None,
         telegram_chat_id=str(message.chat.id),
         active_screenplay_id=active_screenplay_id,
         active_act_id=active_act_id,
