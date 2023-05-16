@@ -16,6 +16,8 @@ def fetch_user_by_chat_id(chat_id: int, session: Session) -> User | None:
 
 
 def fetch_user_by_telegram_nickname(nickname: str, session: Session) -> User | None:
+    if nickname is None:
+        return None
     return session.scalar(
         select(User).where(
             User.telegram_nickname == nickname.lower(),

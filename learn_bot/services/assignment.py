@@ -2,7 +2,7 @@ import logging
 
 from learn_bot.bot import Bot
 from learn_bot.db import Assignment
-from learn_bot.screenplay.db.fetchers import fetch_user_by_telegram_nickname
+from learn_bot.screenplay.db.fetchers import fetch_user_by_telegram_nickname, fetch_user_by_chat_id
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,10 @@ def handle_assignment_checked(assignment: Assignment, bot: Bot) -> None:
             f"Комментарии в пул-реквеста на Гитхабе"
         )
     with bot.get_session() as session:
-        student_user = fetch_user_by_telegram_nickname(assignment.student.telegram_nickname, session)
+        student_user = (
+            fetch_user_by_telegram_nickname(assignment.student.telegram_nickname, session)
+            or fetch_user_by_chat_id(assignment.student.telegram_chat_id, session)
+        )
     if student_user and student_user.telegram_chat_id:
         bot.send_message(student_user.telegram_chat_id, message)
     else:
