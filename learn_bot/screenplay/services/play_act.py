@@ -12,7 +12,7 @@ def play_active_act_for(user: User, message: Message, bot: Bot, config: BotConfi
     with bot.get_session() as session:
         screenplay_id, act_id = fetch_active_act_for(user.id, session)
         if screenplay_id is None:
-            unknown_action_handler(message, bot, config)
+            return unknown_action_handler(message, bot, config)
         screenplay_context = fetch_screenplay_context(user.id, screenplay_id, session)
     screenplay_context |= {
         "screenplay_id": screenplay_id,

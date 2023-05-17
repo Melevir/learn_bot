@@ -16,6 +16,9 @@ logger = logging.getLogger(__name__)
 def message_handler(message: Message, bot: Bot, config: BotConfig) -> None:
     with bot.get_session() as session:
         user = fetch_user_by_chat_id(message.chat.id, session)
+    if user is None:
+        bot.send_message(message.chat.id, "Кажется, мы незнакомы. Пожалуйста, скажи мне /start")
+        return
     play_active_act_for(user, message, bot, config)
 
 
