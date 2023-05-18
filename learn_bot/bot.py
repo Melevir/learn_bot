@@ -5,10 +5,13 @@ from typing import Any, TYPE_CHECKING, Callable
 import sentry_sdk
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session
-from telebot import TeleBot
+from telebot import TeleBot, REPLY_MARKUP_TYPES
+from telebot.types import Message, MessageEntity
 
 from learn_bot.config import BotConfig
+from learn_bot.db.changers import create
 from learn_bot.db.fetchers import fetch_role_by_user
+from learn_bot.screenplay.db.models.message import ChatMessage
 from learn_bot.screenplay.db.models.user import User
 
 if TYPE_CHECKING:
@@ -16,6 +19,8 @@ if TYPE_CHECKING:
 
 
 class BotWithDatabaseAccessMixin:
+    save_responses_to_db = True
+
     def __init__(
         self,
         db_engine: Engine,
@@ -29,6 +34,47 @@ class BotWithDatabaseAccessMixin:
 
     def get_session(self) -> Session:
         return Session(self.db_engine)
+
+    def send_message(
+            self,
+            chat_id: int | str,
+            text: str,
+            parse_mode: str | None = None,
+            entities: list[MessageEntity] | None = None,
+            disable_web_page_preview: bool | None = None,
+            disable_notification: bool | None = None,
+            protect_content: bool | None = None,
+            reply_to_message_id: int | None = None,
+            allow_sending_without_reply: bool | None = None,
+            reply_markup: REPLY_MARKUP_TYPES | None = None,
+            timeout: int | None = None,
+            message_thread_id: int | None = None,
+    ) -> Message:
+        if self.save_responses_to_db:
+            with self.get_session() as session:
+                create(
+                    ChatMessage(
+                        telegram_chat_id=chat_id,
+                        from_user_id=self.user.id,
+                        message=text,
+                    ),
+                    session,
+                )
+
+        return super().send_message(
+            chat_id,
+            text,
+            parse_mode,
+            entities,
+            disable_web_page_preview,
+            disable_notification,
+            protect_content,
+            reply_to_message_id,
+            allow_sending_without_reply,
+            reply_markup,
+            timeout,
+            message_thread_id,
+        )
 
 
 class BotWithScreenplayDirectorMixin:

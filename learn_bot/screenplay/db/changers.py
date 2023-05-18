@@ -7,6 +7,7 @@ from telebot.types import Message
 from learn_bot.db.changers import create
 from learn_bot.screenplay.db.fetchers import fetch_screenplay_context, fetch_user_by_telegram_nickname, \
     fetch_user_by_chat_id
+from learn_bot.screenplay.db.models.message import ChatMessage
 from learn_bot.screenplay.db.models.screenplay_context import ScreenplayContext
 from learn_bot.screenplay.db.models.user import User
 
@@ -79,3 +80,13 @@ def get_or_create_user_from(
     )
     create(user, session)
     return user
+
+
+def save_message_to_db(message: Message, session: Session) -> ChatMessage:
+    chat_message = ChatMessage(
+        telegram_chat_id=message.chat.id,
+        from_user_id=message.from_user.id,
+        message=message.text,
+    )
+    create(chat_message, session)
+    return chat_message

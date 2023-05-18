@@ -4,7 +4,7 @@ from telebot.types import Message
 
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
-from learn_bot.screenplay.db.changers import get_or_create_user_from, update_active_act_for
+from learn_bot.screenplay.db.changers import get_or_create_user_from, update_active_act_for, save_message_to_db
 from learn_bot.screenplay.db.fetchers import fetch_user_by_chat_id
 from learn_bot.screenplay.default_handlers import unknown_action_handler
 from learn_bot.screenplay.services.play_act import play_active_act_for
@@ -16,7 +16,9 @@ logger = logging.getLogger(__name__)
 def message_handler(message: Message, bot: Bot, config: BotConfig) -> None:
     if message.chat.type != "private":
         return
+
     with bot.get_session() as session:
+        save_message_to_db(message, session)
         user = fetch_user_by_chat_id(message.chat.id, session)
     if user is None:
         bot.send_message(message.chat.id, "Кажется, мы незнакомы. Пожалуйста, скажи мне /start")
@@ -27,6 +29,10 @@ def message_handler(message: Message, bot: Bot, config: BotConfig) -> None:
 def command_handler(message: Message, bot: Bot, config: BotConfig) -> None:
     if message.chat.type != "private":
         return
+
+    with bot.get_session() as session:
+        save_message_to_db(message, session)
+
     command = message.text.lstrip("/")
     if command == "start":
         with bot.get_session() as session:
