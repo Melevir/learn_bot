@@ -12,7 +12,7 @@ from learn_bot.screenplay.db.models.screenplay_context import ScreenplayContext
 from learn_bot.screenplay.db.models.user import User
 
 
-def update_active_act_for(user_id: int, screenplay_id: str, act_id: str, session: Session) -> None:
+def update_active_act_for(user_id: int, screenplay_id: str | None, act_id: str | None, session: Session) -> None:
     session.execute(
         update(User).where(User.id == user_id).values(
             active_screenplay_id=screenplay_id,

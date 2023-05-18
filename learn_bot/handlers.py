@@ -40,21 +40,19 @@ def command_handler(message: Message, bot: Bot, config: BotConfig) -> None:
                 message,
                 session,
             )
-            if user.active_screenplay_id:
-                play_active_act_for(user, message, bot, config)
-            else:
-                with bot.get_session() as session:
-                    role = bot.role_provider(user, session)
-                if role is None:
-                    bot.send_message(message.chat.id, "Кажется, мы с вами не знакомы.")
-                    return
-                allowed_plays = [p for p in bot.screenplay_director.fetch_plays_for_role(role) if p.command_to_start]
-                allowed_commands_lines = '\n'.join([
-                    f"- /{p.command_to_start} – {p.short_description}"
-                    for p in allowed_plays
-                ])
-                message_text = f"Вам доступны следующие команды:\n{allowed_commands_lines}"
-                bot.send_message(message.chat.id, message_text)
+            update_active_act_for(user.id, None, None, session)
+            with bot.get_session() as session:
+                role = bot.role_provider(user, session)
+            if role is None:
+                bot.send_message(message.chat.id, "Кажется, мы с вами не знакомы.")
+                return
+            allowed_plays = [p for p in bot.screenplay_director.fetch_plays_for_role(role) if p.command_to_start]
+            allowed_commands_lines = '\n'.join([
+                f"- /{p.command_to_start} – {p.short_description}"
+                for p in allowed_plays
+            ])
+            message_text = f"Вам доступны следующие команды:\n{allowed_commands_lines}"
+            bot.send_message(message.chat.id, message_text)
     else:
         with bot.get_session() as session:
             user = fetch_user_by_chat_id(message.chat.id, session)
