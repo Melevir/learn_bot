@@ -1,4 +1,4 @@
-from telebot.types import Message
+from telebot.types import Message, ReplyKeyboardRemove
 
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
@@ -27,7 +27,7 @@ def play_active_act_for(user: User, message: Message, bot: Bot, config: BotConfi
             bot.send_message(
                 message.chat.id,
                 message_text,
-                reply_markup=act_result.replay_markup,
+                reply_markup=act_result.replay_markup or ReplyKeyboardRemove(),
             )
     with bot.get_session() as session:
         if act_result.context:
