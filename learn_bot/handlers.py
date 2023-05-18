@@ -14,6 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 def message_handler(message: Message, bot: Bot, config: BotConfig) -> None:
+    if message.chat.type != "private":
+        return
     with bot.get_session() as session:
         user = fetch_user_by_chat_id(message.chat.id, session)
     if user is None:
@@ -23,6 +25,8 @@ def message_handler(message: Message, bot: Bot, config: BotConfig) -> None:
 
 
 def command_handler(message: Message, bot: Bot, config: BotConfig) -> None:
+    if message.chat.type != "private":
+        return
     command = message.text.lstrip("/")
     if command == "start":
         with bot.get_session() as session:
