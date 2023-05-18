@@ -6,3 +6,4 @@ from .models.student import Student
 from .models.assignment import Assignment
 from learn_bot.screenplay.db.models.screenplay_context import ScreenplayContext
 from learn_bot.screenplay.db.models.user import User
+from learn_bot.screenplay.db.models.message import ChatMessage
