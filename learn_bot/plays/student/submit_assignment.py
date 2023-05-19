@@ -56,13 +56,13 @@ def create_assignment(
         assignment = Assignment(url=assignment_url, student_id=student.id, status=AssignmentStatus.READY_FOR_REVIEW)
         create(assignment, session)
         handle_new_assignment(assignment, bot)
-        curator_full_name = student.group.curator.full_name
+        curator_name = student.group.curator.first_name
     return ActResult(
         screenplay_id=context["screenplay_id"],
         act_id="one_more_assignment",
         messages=[
             (
-                f"Записал! Дам знать, как {curator_full_name} проверит твою работу. "
+                f"Записал! Дам знать, как {curator_name} проверит твою работу. "
                 f"Хочешь сдать ещё одну?"
             ),
         ],
