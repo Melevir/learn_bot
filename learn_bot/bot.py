@@ -35,7 +35,7 @@ class BotWithDatabaseAccessMixin:
     def get_session(self) -> Session:
         return Session(self.db_engine)
 
-    def send_message(
+    def send_message(  # noqa: CFQ002
             self,
             chat_id: int | str,
             text: str,

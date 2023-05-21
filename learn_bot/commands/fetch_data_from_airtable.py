@@ -79,7 +79,7 @@ def process_students(
     students = [s for s in students_table.all() if "group" in s["fields"] and s["fields"]["group"][0] in groups_map]
     for student in students:
         telegram_nickname = (
-            (student["fields"]["telegram"].strip('-@') or None)
+            (student["fields"]["telegram"].strip("-@") or None)
             if "telegram" in student["fields"]
             else None
         )

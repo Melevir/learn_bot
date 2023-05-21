@@ -17,7 +17,7 @@ def update_active_act_for(user_id: int, screenplay_id: str | None, act_id: str |
         update(User).where(User.id == user_id).values(
             active_screenplay_id=screenplay_id,
             active_act_id=act_id,
-        )
+        ),
     )
     session.commit()
 
@@ -35,8 +35,8 @@ def update_screenplay_context(
                 ScreenplayContext.user_id == user_id,
                 ScreenplayContext.screenplay_id == screenplay_id,
             ).values(
-                data=context
-            )
+                data=context,
+            ),
         )
         session.commit()
     else:
@@ -46,15 +46,16 @@ def update_screenplay_context(
                 screenplay_id=screenplay_id,
                 data=new_context,
             ),
-            session
+            session,
         )
+
 
 def clean_screenplay_context(user_id: int, screenplay_id: str, session: Session) -> None:
     session.execute(
         delete(ScreenplayContext).where(
             ScreenplayContext.user_id == user_id,
             ScreenplayContext.screenplay_id == screenplay_id,
-        )
+        ),
     )
     session.commit()
 

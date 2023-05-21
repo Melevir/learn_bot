@@ -47,7 +47,7 @@ def command_handler(message: Message, bot: Bot, config: BotConfig) -> None:
                 bot.send_message(message.chat.id, "Кажется, мы с вами не знакомы.")
                 return
             allowed_plays = [p for p in bot.screenplay_director.fetch_plays_for_role(role) if p.command_to_start]
-            allowed_commands_lines = '\n'.join([
+            allowed_commands_lines = "\n".join([
                 f"- /{p.command_to_start} – {p.short_description}"
                 for p in allowed_plays
             ])

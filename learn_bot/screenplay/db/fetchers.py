@@ -11,7 +11,7 @@ def fetch_user_by_chat_id(chat_id: str | None, session: Session) -> User | None:
     return session.scalar(
         select(User).where(
             User.telegram_chat_id == str(chat_id),
-        )
+        ),
     )
 
 
@@ -21,7 +21,7 @@ def fetch_user_by_telegram_nickname(nickname: str | None, session: Session) -> U
     return session.scalar(
         select(User).where(
             User.telegram_nickname == nickname.lower(),
-        )
+        ),
     )
 
 
@@ -29,7 +29,7 @@ def fetch_user_by_user_id(user_id: int, session: Session) -> User | None:
     return session.scalar(
         select(User).where(
             User.id == user_id,
-        )
+        ),
     )
 
 
@@ -45,6 +45,6 @@ def fetch_screenplay_context(user_id: int, screenplay_id: str, session: Session)
         select(ScreenplayContext).where(
             ScreenplayContext.user_id == user_id,
             ScreenplayContext.screenplay_id == screenplay_id,
-        )
+        ),
     )
     return context_object.data if context_object else {}

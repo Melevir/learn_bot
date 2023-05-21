@@ -26,9 +26,9 @@ class Student(TimestampsMixin, Base):
     group: Mapped[Group] = relationship(back_populates="students")
     assignments: Mapped[list[Assignment]] = relationship()
 
-    def __repr__(self) -> str:
-        return f"Student {self.first_name} {self.last_name}"
-
     @property
     def full_name(self) -> str:
         return f"{self.first_name} {self.last_name}"
+
+    def __repr__(self) -> str:
+        return f"Student {self.first_name} {self.last_name}"

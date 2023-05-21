@@ -19,9 +19,9 @@ class User(TimestampsMixin, Base):
     active_screenplay_id: Mapped[str | None] = mapped_column(String(length=256))
     active_act_id: Mapped[str | None] = mapped_column(String(length=256))
 
-    def __repr__(self) -> str:
-        return f"User {self.first_name} {self.last_name}"
-
     @property
     def full_name(self) -> str:
         return f"{self.first_name} {self.last_name}"
+
+    def __repr__(self) -> str:
+        return f"User {self.first_name} {self.last_name}"

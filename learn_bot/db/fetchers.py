@@ -20,7 +20,7 @@ def fetch_curator_by_telegram_nickname(nickname: str | None, session: Session) -
     return session.scalar(
         select(Curator).where(
             Curator.telegram_nickname == nickname.lower(),
-        )
+        ),
     )
 
 
@@ -30,7 +30,7 @@ def fetch_student_by_chat_id(chat_id: str | None, session: Session) -> Student |
     return session.scalar(
         select(Student).where(
             Student.telegram_chat_id == str(chat_id),
-        )
+        ),
     )
 
 
@@ -40,7 +40,7 @@ def fetch_student_by_telegram_nickname(nickname: str | None, session: Session) -
     return session.scalar(
         select(Student).where(
             Student.telegram_nickname == nickname.lower(),
-        )
+        ),
     )
 
 

@@ -18,7 +18,9 @@ class ActResult:
     is_screenplay_over: bool = False
     play_next_act_now: bool = False
 
+
 PlayHandler = Callable[[User, Mapping[str, str], Message, Bot, BotConfig], ActResult]
+
 
 @dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
 class ScreenPlay:

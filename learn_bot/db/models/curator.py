@@ -22,9 +22,9 @@ class Curator(TimestampsMixin, Base):
 
     groups: Mapped[list[Group]] = relationship()
 
-    def __repr__(self) -> str:
-        return f"Curator {self.first_name} {self.last_name}"
-
     @property
     def full_name(self) -> str:
         return f"{self.first_name} {self.last_name}"
+
+    def __repr__(self) -> str:
+        return f"Curator {self.first_name} {self.last_name}"

@@ -78,7 +78,7 @@ def one_more_assignment(
     bot: Bot,
     config: BotConfig,
 ) -> ActResult:
-    if message.text == 'Да, сдам ещё одну':
+    if message.text == "Да, сдам ещё одну":
         return ActResult(screenplay_id=context["screenplay_id"], act_id="create_assignment", play_next_act_now=True)
     else:
-        return ActResult(messages=['Тогда до скорого'], screenplay_id=None, act_id=None, is_screenplay_over=True)
+        return ActResult(messages=["Тогда до скорого"], screenplay_id=None, act_id=None, is_screenplay_over=True)

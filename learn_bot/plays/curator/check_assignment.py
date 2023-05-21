@@ -33,8 +33,8 @@ def list_pending_assignments(
         ):
             return ActResult(
                 messages=[f"У тебя {len(assignments)} заданий на проверку"],
-                screenplay_id='curator.check_assignment',
-                act_id='start',
+                screenplay_id="curator.check_assignment",
+                act_id="start",
                 replay_markup=compose_curator_assignments_list_markup(),
             )
         else:
@@ -54,9 +54,9 @@ def start_assignments_check(
     config: BotConfig,
 ) -> ActResult:
     if message.text == "Позже":
-        return ActResult(messages=['Тогда до скорого'], screenplay_id=None, act_id=None, is_screenplay_over=True)
+        return ActResult(messages=["Тогда до скорого"], screenplay_id=None, act_id=None, is_screenplay_over=True)
     else:
-        return ActResult(screenplay_id='curator.check_assignment', act_id='check', play_next_act_now=True)
+        return ActResult(screenplay_id="curator.check_assignment", act_id="check", play_next_act_now=True)
 
 
 def check_oldest_pending_assignment(
@@ -82,8 +82,8 @@ def check_oldest_pending_assignment(
             f"{assignment.student.full_name} сдал работу: {assignment.url}",
             check_note,
         ],
-        screenplay_id='curator.check_assignment',
-        act_id='checked',
+        screenplay_id="curator.check_assignment",
+        act_id="checked",
         replay_markup=compose_curator_assignment_pull_request_check_markup(),
         context={"assignment_id": str(assignment.id)},
     )
@@ -113,8 +113,8 @@ def finished_assignment_check(
         next_assignment = fetch_oldest_pending_assignment_for_curator(curator.id, session=session)
     if next_assignment:
         return ActResult(
-            screenplay_id='curator.check_assignment',
-            act_id='check',
+            screenplay_id="curator.check_assignment",
+            act_id="check",
             context={"assignment_id": str(assignment.id)},
             play_next_act_now=True,
         )

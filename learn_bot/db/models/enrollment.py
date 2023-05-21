@@ -12,6 +12,7 @@ from learn_bot.db.mixins import TimestampsMixin
 if TYPE_CHECKING:
     from learn_bot.db import Group
 
+
 class Enrollment(TimestampsMixin, Base):
     __tablename__ = "enrollment"
 
@@ -24,10 +25,10 @@ class Enrollment(TimestampsMixin, Base):
     course: Mapped[Course] = relationship(back_populates="enrollments")
     groups: Mapped[list[Group]] = relationship()
 
-    def __repr__(self) -> str:
-        return f"Enrollment #{self.number} of {self.course}"
-
     @property
     def is_active(self) -> bool:
         today = datetime.date.today()
         return self.date_start <= today <= self.date_end
+
+    def __repr__(self) -> str:
+        return f"Enrollment #{self.number} of {self.course}"
