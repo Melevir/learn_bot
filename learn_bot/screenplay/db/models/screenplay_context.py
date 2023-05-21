@@ -1,4 +1,4 @@
-from sqlalchemy import String, JSON
+from sqlalchemy import JSON, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from learn_bot.db.base import Base

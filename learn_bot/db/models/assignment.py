@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, String, Enum, Text
+from sqlalchemy import Enum, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from learn_bot.db import Student

@@ -1,11 +1,12 @@
 from __future__ import annotations
+
 import functools
-from typing import Any, TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 import sentry_sdk
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session
-from telebot import TeleBot, REPLY_MARKUP_TYPES
+from telebot import REPLY_MARKUP_TYPES, TeleBot
 from telebot.types import Message, MessageEntity
 
 from learn_bot.config import BotConfig
@@ -105,13 +106,22 @@ def _configure_handlers(bot: Bot, config: BotConfig) -> None:
 
 
 def _compose_screenplay_director() -> ScreenplayDirector:
+    from learn_bot.plays.curator.check_assignment import (
+        check_oldest_pending_assignment,
+        finished_assignment_check,
+        list_pending_assignments,
+        start_assignments_check,
+    )
+    from learn_bot.plays.curator.weekly_student_report import (
+        show_weekly_students_report,
+    )
+    from learn_bot.plays.student.submit_assignment import (
+        create_assignment,
+        intro,
+        one_more_assignment,
+    )
     from learn_bot.screenplay.custom_types import ScreenPlay
     from learn_bot.screenplay.director import ScreenplayDirector
-    from learn_bot.plays.curator.check_assignment import (
-        list_pending_assignments, start_assignments_check, check_oldest_pending_assignment, finished_assignment_check,
-    )
-    from learn_bot.plays.student.submit_assignment import intro, create_assignment, one_more_assignment
-    from learn_bot.plays.curator.weekly_student_report import show_weekly_students_report
 
     director = ScreenplayDirector()
     director.register_play(

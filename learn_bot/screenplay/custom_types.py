@@ -1,7 +1,7 @@
 import dataclasses
-from typing import Mapping, Callable
+from typing import Callable, Mapping
 
-from telebot.types import ReplyKeyboardMarkup, Message
+from telebot.types import Message, ReplyKeyboardMarkup
 
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig

@@ -10,8 +10,12 @@ from telebot.types import Message
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
 from learn_bot.db import Group
-from learn_bot.db.fetchers import fetch_curator_by_telegram_nickname, fetch_active_groups_for_curator, \
-    fetch_students_in_group, fetch_all_assignments_for_student_in_period
+from learn_bot.db.fetchers import (
+    fetch_active_groups_for_curator,
+    fetch_all_assignments_for_student_in_period,
+    fetch_curator_by_telegram_nickname,
+    fetch_students_in_group,
+)
 from learn_bot.screenplay.custom_types import ActResult
 from learn_bot.screenplay.db.models.user import User
 

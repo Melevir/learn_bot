@@ -6,11 +6,17 @@ from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
 from learn_bot.db.changers import update
 from learn_bot.db.enums import AssignmentStatus
-from learn_bot.db.fetchers import fetch_curator_by_telegram_nickname, fetch_assignments_for_curator, \
-    fetch_oldest_pending_assignment_for_curator, fetch_assignment_by_id
+from learn_bot.db.fetchers import (
+    fetch_assignment_by_id,
+    fetch_assignments_for_curator,
+    fetch_curator_by_telegram_nickname,
+    fetch_oldest_pending_assignment_for_curator,
+)
 from learn_bot.db.utils.urls import is_github_pull_request_url
-from learn_bot.markups import compose_curator_assignments_list_markup, \
-    compose_curator_assignment_pull_request_check_markup
+from learn_bot.markups import (
+    compose_curator_assignment_pull_request_check_markup,
+    compose_curator_assignments_list_markup,
+)
 from learn_bot.screenplay.custom_types import ActResult
 from learn_bot.screenplay.db.models.user import User
 from learn_bot.services.assignment import handle_assignment_checked

@@ -1,12 +1,15 @@
 from typing import Mapping
 
-from sqlalchemy import update, delete
+from sqlalchemy import delete, update
 from sqlalchemy.orm import Session
 from telebot.types import Message
 
 from learn_bot.db.changers import create
-from learn_bot.screenplay.db.fetchers import fetch_screenplay_context, fetch_user_by_telegram_nickname, \
-    fetch_user_by_chat_id
+from learn_bot.screenplay.db.fetchers import (
+    fetch_screenplay_context,
+    fetch_user_by_chat_id,
+    fetch_user_by_telegram_nickname,
+)
 from learn_bot.screenplay.db.models.message import ChatMessage
 from learn_bot.screenplay.db.models.screenplay_context import ScreenplayContext
 from learn_bot.screenplay.db.models.user import User

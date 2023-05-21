@@ -3,7 +3,6 @@ import logging
 import requests
 import validators
 
-
 logger = logging.getLogger(__name__)
 
 

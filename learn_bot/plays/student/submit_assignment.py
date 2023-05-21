@@ -7,7 +7,7 @@ from learn_bot.config import BotConfig
 from learn_bot.db import Assignment
 from learn_bot.db.changers import create
 from learn_bot.db.enums import AssignmentStatus
-from learn_bot.db.utils.urls import is_valid_github_url, is_url_accessible
+from learn_bot.db.utils.urls import is_url_accessible, is_valid_github_url
 from learn_bot.markups import compose_post_submit_assignment_markup
 from learn_bot.screenplay.custom_types import ActResult
 from learn_bot.screenplay.db.models.user import User

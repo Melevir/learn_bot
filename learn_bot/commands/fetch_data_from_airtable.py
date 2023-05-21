@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
-from learn_bot.db import Course, Enrollment, Curator, Group, Student
+from learn_bot.db import Course, Curator, Enrollment, Group, Student
 from learn_bot.db.changers import create
 
 
@@ -22,8 +22,11 @@ def process_enrollment(
     session: Session,
     config: BotConfig,
 ) -> Mapping[str, int]:
+    assert config.airtable_api_token
+    assert config.airtable_database_id
+    assert config.airtable_course_table_id
     enrollments_table = Table(config.airtable_api_token, config.airtable_database_id, config.airtable_course_table_id)
-    enrollments = enrollments_table.all()
+    enrollments = enrollments_table.all()  # type: ignore[no-untyped-call]
     enrollment = [e for e in enrollments if e["fields"].get("course_number") == str(course_num_to_import)][0]
     db_enrollment = Enrollment(
         number=course_num_to_import,
@@ -36,8 +39,12 @@ def process_enrollment(
 
 
 def process_curators(session: Session, config: BotConfig) -> Mapping[str, int]:
+    assert config.airtable_api_token
+    assert config.airtable_database_id
+    assert config.airtable_curators_table_id
+
     curators_table = Table(config.airtable_api_token, config.airtable_database_id, config.airtable_curators_table_id)
-    curators = curators_table.all()
+    curators = curators_table.all()  # type: ignore[no-untyped-call]
     curators_map = {}
     for curator in curators:
         first_name, last_name = curator["fields"]["courator"].strip().split(" ")
@@ -57,8 +64,14 @@ def process_groups(
     session: Session,
     config: BotConfig,
 ) -> Mapping[str, int]:
+    assert config.airtable_api_token
+    assert config.airtable_database_id
+    assert config.airtable_groups_table_id
+
     groups_table = Table(config.airtable_api_token, config.airtable_database_id, config.airtable_groups_table_id)
-    groups = [g for g in groups_table.all() if "course" in g["fields"] and g["fields"]["course"][0] in enrollments_map]
+    groups = [
+        g for g in groups_table.all()  # type: ignore[no-untyped-call]
+        if "course" in g["fields"] and g["fields"]["course"][0] in enrollments_map]
     groups_map = {}
     for group in groups:
         db_group = Group(
@@ -75,8 +88,15 @@ def process_students(
     session: Session,
     config: BotConfig,
 ) -> None:
+    assert config.airtable_api_token
+    assert config.airtable_database_id
+    assert config.airtable_students_table_id
+
     students_table = Table(config.airtable_api_token, config.airtable_database_id, config.airtable_students_table_id)
-    students = [s for s in students_table.all() if "group" in s["fields"] and s["fields"]["group"][0] in groups_map]
+    students = [
+        s for s in students_table.all()  # type: ignore[no-untyped-call]
+        if "group" in s["fields"] and s["fields"]["group"][0] in groups_map
+    ]
     for student in students:
         telegram_nickname = (
             (student["fields"]["telegram"].strip("-@") or None)
