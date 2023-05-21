@@ -92,11 +92,14 @@ def check_oldest_pending_assignment(
         session,
     )
 
+    is_pr = is_github_pull_request_url(assignment.url)
     check_note = (
         "Это ссылка на пул-реквест, так что откомментируй работу прямо на Гитхабе"
-        if is_github_pull_request_url(assignment.url)
+        if is_pr
         else "Это не похоже на пул-реквест, поэтому напиши ревью одним сообщением мне в ответ, я перешлю его студенту."
     )
+    replay_markup = compose_curator_assignment_pull_request_check_markup() if is_pr else None
+
     return ActResult(
         messages=[
             f"{assignment.student.full_name} сдал работу: {assignment.url}",
@@ -104,7 +107,7 @@ def check_oldest_pending_assignment(
         ],
         screenplay_id="curator.check_assignment",
         act_id="checked",
-        replay_markup=compose_curator_assignment_pull_request_check_markup(),
+        replay_markup=replay_markup,
         context={"assignment_id": str(assignment.id)},
     )
 

@@ -5,7 +5,7 @@ from telebot.types import Message
 
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
-from learn_bot.db import Assignment, Curator, Student, AssignmentStatusHistory
+from learn_bot.db import Assignment, AssignmentStatusHistory, Curator, Student
 from learn_bot.db.changers import create
 from learn_bot.db.enums import AssignmentStatus
 from learn_bot.db.utils.urls import is_url_accessible, is_valid_github_url

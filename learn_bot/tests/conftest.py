@@ -11,7 +11,7 @@ from telebot.types import Chat, Message, User as TelebotUser
 
 from learn_bot.bot import Bot, compose_bot
 from learn_bot.config import BotConfig
-from learn_bot.db import Assignment, Course, Curator, Enrollment, Group, Student, AssignmentStatusHistory
+from learn_bot.db import Assignment, AssignmentStatusHistory, Course, Curator, Enrollment, Group, Student
 from learn_bot.db.changers import create, delete_all_records_from
 from learn_bot.screenplay.db.changers import update_active_act_for
 from learn_bot.screenplay.db.fetchers import fetch_user_by_chat_id
