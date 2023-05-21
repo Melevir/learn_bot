@@ -1,11 +1,11 @@
-from typing import Mapping
+from typing import Mapping, cast
 
 from sqlalchemy.orm import Session
 from telebot.types import Message
 
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
-from learn_bot.db import Assignment, Curator, Student
+from learn_bot.db import Assignment, Curator, Student, AssignmentStatusHistory
 from learn_bot.db.changers import create
 from learn_bot.db.enums import AssignmentStatus
 from learn_bot.db.utils.urls import is_url_accessible, is_valid_github_url
@@ -65,8 +65,14 @@ def create_assignment(
                 ),
             ],
         )
-    assignment = Assignment(url=assignment_url, student_id=student.id, status=AssignmentStatus.READY_FOR_REVIEW)
-    create(assignment, session)
+    assignment = cast(Assignment, create(
+        Assignment(url=assignment_url, student_id=student.id, status=AssignmentStatus.READY_FOR_REVIEW),
+        session,
+    ))
+    create(
+        AssignmentStatusHistory(new_status=AssignmentStatus.READY_FOR_REVIEW, assignment_id=assignment.id),
+        session,
+    )
     handle_new_assignment(assignment, bot)
     curator_name = student.group.curator.first_name
     return ActResult(
