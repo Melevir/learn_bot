@@ -19,8 +19,8 @@ def play_active_act_for(user: User, message: Message, bot: Bot, config: BotConfi
         "act_id": act_id,
     }
     act_handler = bot.screenplay_director.fetch_act_handler(screenplay_id, act_id)
-    act_result = act_handler(user, screenplay_context, message, bot, config)
     with bot.get_session() as session:
+        act_result = act_handler(user, screenplay_context, message, bot, config, session)
         update_active_act_for(user.id, act_result.screenplay_id, act_result.act_id, session)
     if act_result.messages:
         for message_text in act_result.messages:

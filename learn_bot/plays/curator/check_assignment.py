@@ -1,5 +1,6 @@
 from typing import Mapping
 
+from sqlalchemy.orm import Session
 from telebot.types import Message
 
 from learn_bot.bot import Bot
@@ -28,28 +29,28 @@ def list_pending_assignments(
     message: Message,
     bot: Bot,
     config: BotConfig,
+    session: Session,
 ) -> ActResult:
-    with bot.get_session() as session:
-        curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
-        assert curator
-        if assignments := fetch_assignments_for_curator(
-            curator.id,
-            statuses=[AssignmentStatus.READY_FOR_REVIEW],
-            session=session,
-        ):
-            return ActResult(
-                messages=[f"У тебя {len(assignments)} заданий на проверку"],
-                screenplay_id="curator.check_assignment",
-                act_id="start",
-                replay_markup=compose_curator_assignments_list_markup(),
-            )
-        else:
-            return ActResult(
-                messages=["У тебя нет заданий на проверку"],
-                screenplay_id=None,
-                act_id=None,
-                is_screenplay_over=True,
-            )
+    curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
+    assert curator
+    if assignments := fetch_assignments_for_curator(
+        curator.id,
+        statuses=[AssignmentStatus.READY_FOR_REVIEW],
+        session=session,
+    ):
+        return ActResult(
+            messages=[f"У тебя {len(assignments)} заданий на проверку"],
+            screenplay_id="curator.check_assignment",
+            act_id="start",
+            replay_markup=compose_curator_assignments_list_markup(),
+        )
+    else:
+        return ActResult(
+            messages=["У тебя нет заданий на проверку"],
+            screenplay_id=None,
+            act_id=None,
+            is_screenplay_over=True,
+        )
 
 
 def start_assignments_check(
@@ -58,6 +59,7 @@ def start_assignments_check(
     message: Message,
     bot: Bot,
     config: BotConfig,
+    session: Session,
 ) -> ActResult:
     if message.text == "Позже":
         return ActResult(messages=["Тогда до скорого"], screenplay_id=None, act_id=None, is_screenplay_over=True)
@@ -71,28 +73,28 @@ def check_oldest_pending_assignment(
     message: Message,
     bot: Bot,
     config: BotConfig,
+    session: Session,
 ) -> ActResult:
-    with bot.get_session() as session:
-        curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
-        assert curator
-        assignment = fetch_oldest_pending_assignment_for_curator(curator.id, session=session)
-        assert assignment
+    curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
+    assert curator
+    assignment = fetch_oldest_pending_assignment_for_curator(curator.id, session=session)
+    assert assignment
 
-        check_note = (
-            "Это ссылка на пул-реквест, так что откомментируй работу прямо на Гитхабе"
-            if is_github_pull_request_url(assignment.url)
-            else "Это не похоже на пул-реквест, поэтому напиши ревью одним сообщением мне в ответ, я перешлю его студенту."
-        )
-        return ActResult(
-            messages=[
-                f"{assignment.student.full_name} сдал работу: {assignment.url}",
-                check_note,
-            ],
-            screenplay_id="curator.check_assignment",
-            act_id="checked",
-            replay_markup=compose_curator_assignment_pull_request_check_markup(),
-            context={"assignment_id": str(assignment.id)},
-        )
+    check_note = (
+        "Это ссылка на пул-реквест, так что откомментируй работу прямо на Гитхабе"
+        if is_github_pull_request_url(assignment.url)
+        else "Это не похоже на пул-реквест, поэтому напиши ревью одним сообщением мне в ответ, я перешлю его студенту."
+    )
+    return ActResult(
+        messages=[
+            f"{assignment.student.full_name} сдал работу: {assignment.url}",
+            check_note,
+        ],
+        screenplay_id="curator.check_assignment",
+        act_id="checked",
+        replay_markup=compose_curator_assignment_pull_request_check_markup(),
+        context={"assignment_id": str(assignment.id)},
+    )
 
 
 def finished_assignment_check(
@@ -101,22 +103,20 @@ def finished_assignment_check(
     message: Message,
     bot: Bot,
     config: BotConfig,
+    session: Session,
 ) -> ActResult:
-    with bot.get_session() as session:
-        curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
-        assignment = fetch_assignment_by_id(int(context["assignment_id"]), session)
+    curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
+    assignment = fetch_assignment_by_id(int(context["assignment_id"]), session)
     assert assignment
     assert curator
 
     if message.text != "Готово":
         assignment.curator_feedback = message.text
     assignment.status = AssignmentStatus.REVIEWED
-    with bot.get_session() as session:
-        update(assignment, session)
-        handle_assignment_checked(assignment, bot)
+    update(assignment, session)
+    handle_assignment_checked(assignment, bot)
 
-    with bot.get_session() as session:
-        next_assignment = fetch_oldest_pending_assignment_for_curator(curator.id, session=session)
+    next_assignment = fetch_oldest_pending_assignment_for_curator(curator.id, session=session)
     if next_assignment:
         return ActResult(
             screenplay_id="curator.check_assignment",

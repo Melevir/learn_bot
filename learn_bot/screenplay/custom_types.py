@@ -1,6 +1,7 @@
 import dataclasses
 from typing import Callable, Mapping
 
+from sqlalchemy.orm import Session
 from telebot.types import Message, ReplyKeyboardMarkup
 
 from learn_bot.bot import Bot
@@ -19,7 +20,7 @@ class ActResult:
     play_next_act_now: bool = False
 
 
-PlayHandler = Callable[[User, Mapping[str, str], Message, Bot, BotConfig], ActResult]
+PlayHandler = Callable[[User, Mapping[str, str], Message, Bot, BotConfig, Session], ActResult]
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True, slots=True)

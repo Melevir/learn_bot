@@ -1,5 +1,6 @@
 from typing import Mapping
 
+from sqlalchemy.orm import Session
 from telebot.types import Message
 
 from learn_bot.bot import Bot
@@ -15,7 +16,14 @@ from learn_bot.services.assignment import handle_new_assignment
 from learn_bot.services.student import fetch_student_from_message
 
 
-def intro(user: User, context: Mapping[str, str], message: Message, bot: Bot, config: BotConfig) -> ActResult:
+def intro(
+    user: User,
+    context: Mapping[str, str],
+    message: Message,
+    bot: Bot,
+    config: BotConfig,
+    session: Session,
+) -> ActResult:
     return ActResult(
         screenplay_id=context["screenplay_id"],
         act_id="create_assignment",
@@ -29,6 +37,7 @@ def create_assignment(
     message: Message,
     bot: Bot,
     config: BotConfig,
+    session: Session,
 ) -> ActResult:
     assignment_url = message.text
     if not is_valid_github_url(assignment_url):
@@ -51,13 +60,12 @@ def create_assignment(
                 ),
             ],
         )
-    with bot.get_session() as session:
-        student = fetch_student_from_message(message, session)
-        assert student
-        assignment = Assignment(url=assignment_url, student_id=student.id, status=AssignmentStatus.READY_FOR_REVIEW)
-        create(assignment, session)
-        handle_new_assignment(assignment, bot)
-        curator_name = student.group.curator.first_name
+    student = fetch_student_from_message(message, session)
+    assert student
+    assignment = Assignment(url=assignment_url, student_id=student.id, status=AssignmentStatus.READY_FOR_REVIEW)
+    create(assignment, session)
+    handle_new_assignment(assignment, bot)
+    curator_name = student.group.curator.first_name
     return ActResult(
         screenplay_id=context["screenplay_id"],
         act_id="one_more_assignment",
@@ -77,6 +85,7 @@ def one_more_assignment(
     message: Message,
     bot: Bot,
     config: BotConfig,
+    session: Session,
 ) -> ActResult:
     if message.text == "Да, сдам ещё одну":
         return ActResult(screenplay_id=context["screenplay_id"], act_id="create_assignment", play_next_act_now=True)
