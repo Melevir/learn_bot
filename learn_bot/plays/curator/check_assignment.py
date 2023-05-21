@@ -78,21 +78,21 @@ def check_oldest_pending_assignment(
         assignment = fetch_oldest_pending_assignment_for_curator(curator.id, session=session)
         assert assignment
 
-    check_note = (
-        "Это ссылка на пул-реквест, так что откомментируй работу прямо на Гитхабе"
-        if is_github_pull_request_url(assignment.url)
-        else "Это не похоже на пул-реквест, поэтому напиши ревью одним сообщением мне в ответ, я перешлю его студенту."
-    )
-    return ActResult(
-        messages=[
-            f"{assignment.student.full_name} сдал работу: {assignment.url}",
-            check_note,
-        ],
-        screenplay_id="curator.check_assignment",
-        act_id="checked",
-        replay_markup=compose_curator_assignment_pull_request_check_markup(),
-        context={"assignment_id": str(assignment.id)},
-    )
+        check_note = (
+            "Это ссылка на пул-реквест, так что откомментируй работу прямо на Гитхабе"
+            if is_github_pull_request_url(assignment.url)
+            else "Это не похоже на пул-реквест, поэтому напиши ревью одним сообщением мне в ответ, я перешлю его студенту."
+        )
+        return ActResult(
+            messages=[
+                f"{assignment.student.full_name} сдал работу: {assignment.url}",
+                check_note,
+            ],
+            screenplay_id="curator.check_assignment",
+            act_id="checked",
+            replay_markup=compose_curator_assignment_pull_request_check_markup(),
+            context={"assignment_id": str(assignment.id)},
+        )
 
 
 def finished_assignment_check(
