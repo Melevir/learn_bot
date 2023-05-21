@@ -6,19 +6,19 @@ import os
 class BotConfig:
     telegram_token: str
 
-    sentry_dsn: str | None
-
     db_dsn: str
-    db_echo: bool
+    db_echo: bool = False
 
-    restart_on_change: bool
+    restart_on_change: bool = False
 
-    airtable_api_token: str | None
-    airtable_database_id: str | None
-    airtable_course_table_id: str | None
-    airtable_students_table_id: str | None
-    airtable_groups_table_id: str | None
-    airtable_curators_table_id: str | None
+    sentry_dsn: str | None = None
+
+    airtable_api_token: str | None = None
+    airtable_database_id: str | None = None
+    airtable_course_table_id: str | None = None
+    airtable_students_table_id: str | None = None
+    airtable_groups_table_id: str | None = None
+    airtable_curators_table_id: str | None = None
 
 
 def get_config() -> BotConfig:

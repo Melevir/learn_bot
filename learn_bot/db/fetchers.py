@@ -100,6 +100,14 @@ def fetch_students_in_group(group: Group, session: Session) -> list[Student]:
     ).all())
 
 
+def fetch_all_assignments_for_student(student: Student, session: Session) -> list[Assignment]:
+    return list(session.scalars(
+        select(Assignment).filter(
+            Assignment.student_id == student.id,
+        ).order_by(Assignment.created_at),
+    ).all())
+
+
 def fetch_all_assignments_for_student_in_period(
     student: Student,
     date_from: datetime.date,

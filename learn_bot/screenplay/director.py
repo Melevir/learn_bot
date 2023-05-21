@@ -30,6 +30,11 @@ class ScreenplayDirector:
         assert self._handlers
         return [h.command_to_start for h in self._handlers.values() if h.command_to_start]
 
+    def get_play_by_name(self, play_name: str) -> ScreenPlay | None:
+        assert self._handlers
+        matched_commands = [h for h in self._handlers.values() if h.name == play_name]
+        return matched_commands[0] if matched_commands else None
+
     def get_play_for_command(self, command: str) -> ScreenPlay | None:
         assert self._handlers
         matched_commands = [h for h in self._handlers.values() if h.command_to_start == command]
