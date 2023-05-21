@@ -111,6 +111,7 @@ def _compose_screenplay_director() -> ScreenplayDirector:
         list_pending_assignments, start_assignments_check, check_oldest_pending_assignment, finished_assignment_check,
     )
     from learn_bot.plays.student.submit_assignment import intro, create_assignment, one_more_assignment
+    from learn_bot.plays.curator.weekly_student_report import show_weekly_students_report
 
     director = ScreenplayDirector()
     director.register_play(
@@ -140,6 +141,18 @@ def _compose_screenplay_director() -> ScreenplayDirector:
             command_to_start="check",
         ),
     )
+    director.register_play(
+        ScreenPlay(
+            name="curator.weekly_student_report",
+            short_description="показать отчёт по сданным работам",
+            acts=[
+                ("show", show_weekly_students_report),
+            ],
+            allowed_for_roles=["curator"],
+            command_to_start="assignments_report",
+        ),
+    )
+
     return director
 
 
