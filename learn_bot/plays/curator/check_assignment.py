@@ -5,8 +5,8 @@ from telebot.types import Message
 
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
-from learn_bot.db import Curator, Student
-from learn_bot.db.changers import update
+from learn_bot.db import AssignmentStatusHistory, Curator, Student
+from learn_bot.db.changers import create, update
 from learn_bot.db.enums import AssignmentStatus
 from learn_bot.db.fetchers import (
     fetch_assignment_by_id,
@@ -85,6 +85,13 @@ def check_oldest_pending_assignment(
     assignment = fetch_oldest_pending_assignment_for_curator(curator.id, session=session)
     assert assignment
 
+    assignment.status = AssignmentStatus.REVIEW_IN_PROGRESS
+    update(assignment, session)
+    create(
+        AssignmentStatusHistory(new_status=AssignmentStatus.REVIEW_IN_PROGRESS, assignment_id=assignment.id),
+        session,
+    )
+
     check_note = (
         "Это ссылка на пул-реквест, так что откомментируй работу прямо на Гитхабе"
         if is_github_pull_request_url(assignment.url)
@@ -120,6 +127,10 @@ def finished_assignment_check(
         assignment.curator_feedback = message.text
     assignment.status = AssignmentStatus.REVIEWED
     update(assignment, session)
+    create(
+        AssignmentStatusHistory(new_status=AssignmentStatus.REVIEWED, assignment_id=assignment.id),
+        session,
+    )
     handle_assignment_checked(assignment, bot)
 
     next_assignment = fetch_oldest_pending_assignment_for_curator(curator.id, session=session)
