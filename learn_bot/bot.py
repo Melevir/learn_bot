@@ -55,13 +55,13 @@ class BotWithDatabaseAccessMixin:
                 create(
                     ChatMessage(
                         telegram_chat_id=chat_id,
-                        from_user_id=self.user.id,
+                        from_user_id=self.user.id,  # type: ignore[attr-defined]
                         message=text,
                     ),
                     session,
                 )
 
-        return super().send_message(
+        return super().send_message(  # type: ignore[misc]
             chat_id,
             text,
             parse_mode,
@@ -88,8 +88,8 @@ class Bot(BotWithDatabaseAccessMixin, BotWithScreenplayDirectorMixin, TeleBot):
 
 
 class SentryExceptionHandler:
-    def handle(self, exception):
-        return sentry_sdk.capture_exception(exception)
+    def handle(self, exception: Exception) -> None:
+        sentry_sdk.capture_exception(exception)
 
 
 def _configure_handlers(bot: Bot, config: BotConfig) -> None:

@@ -11,7 +11,7 @@ from learn_bot.screenplay.default_handlers import unknown_action_handler
 def play_active_act_for(user: User, message: Message, bot: Bot, config: BotConfig) -> None:
     with bot.get_session() as session:
         screenplay_id, act_id = fetch_active_act_for(user.id, session)
-        if screenplay_id is None:
+        if screenplay_id is None or act_id is None:
             return unknown_action_handler(message, bot, config)
         screenplay_context = fetch_screenplay_context(user.id, screenplay_id, session)
     screenplay_context |= {

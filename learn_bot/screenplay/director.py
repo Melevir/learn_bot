@@ -19,14 +19,18 @@ class ScreenplayDirector:
         screenplay_id: str,
         act_id: str,
     ) -> PlayHandler:
+        assert self._handlers
         return dict(self._handlers[screenplay_id].acts)[act_id]
 
     def fetch_plays_for_role(self, role: str) -> list[ScreenPlay]:
+        assert self._handlers
         return [h for h in self._handlers.values() if role in h.allowed_for_roles]
 
     def get_all_commands(self) -> list[str]:
+        assert self._handlers
         return [h.command_to_start for h in self._handlers.values() if h.command_to_start]
 
     def get_play_for_command(self, command: str) -> ScreenPlay | None:
+        assert self._handlers
         matched_commands = [h for h in self._handlers.values() if h.command_to_start == command]
         return matched_commands[0] if matched_commands else None

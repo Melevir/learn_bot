@@ -1,4 +1,6 @@
+from __future__ import annotations
 import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -7,6 +9,8 @@ from learn_bot.db import Course
 from learn_bot.db.base import Base
 from learn_bot.db.mixins import TimestampsMixin
 
+if TYPE_CHECKING:
+    from learn_bot.db import Group
 
 class Enrollment(TimestampsMixin, Base):
     __tablename__ = "enrollment"
@@ -18,7 +22,7 @@ class Enrollment(TimestampsMixin, Base):
     course_id: Mapped[int] = mapped_column(ForeignKey("course.id"))
 
     course: Mapped[Course] = relationship(back_populates="enrollments")
-    groups: Mapped[list["Group"]] = relationship()
+    groups: Mapped[list[Group]] = relationship()
 
     def __repr__(self) -> str:
         return f"Enrollment #{self.number} of {self.course}"

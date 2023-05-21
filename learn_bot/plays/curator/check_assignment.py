@@ -25,6 +25,7 @@ def list_pending_assignments(
 ) -> ActResult:
     with bot.get_session() as session:
         curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
+        assert curator
         if assignments := fetch_assignments_for_curator(
             curator.id,
             statuses=[AssignmentStatus.READY_FOR_REVIEW],
@@ -67,7 +68,9 @@ def check_oldest_pending_assignment(
 ) -> ActResult:
     with bot.get_session() as session:
         curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
-    assignment = fetch_oldest_pending_assignment_for_curator(curator.id, session=session)
+        assert curator
+        assignment = fetch_oldest_pending_assignment_for_curator(curator.id, session=session)
+        assert assignment
 
     check_note = (
         "Это ссылка на пул-реквест, так что откомментируй работу прямо на Гитхабе"
@@ -96,6 +99,9 @@ def finished_assignment_check(
     with bot.get_session() as session:
         curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
         assignment = fetch_assignment_by_id(int(context["assignment_id"]), session)
+    assert assignment
+    assert curator
+
     if message.text != "Готово":
         assignment.curator_feedback = message.text
     assignment.status = AssignmentStatus.REVIEWED
@@ -109,7 +115,7 @@ def finished_assignment_check(
         return ActResult(
             screenplay_id='curator.check_assignment',
             act_id='check',
-            context={"assignment_id": assignment.id},
+            context={"assignment_id": str(assignment.id)},
             play_next_act_now=True,
         )
     else:

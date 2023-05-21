@@ -53,6 +53,7 @@ def create_assignment(
         )
     with bot.get_session() as session:
         student = fetch_student_from_message(message, session)
+        assert student
         assignment = Assignment(url=assignment_url, student_id=student.id, status=AssignmentStatus.READY_FOR_REVIEW)
         create(assignment, session)
         handle_new_assignment(assignment, bot)

@@ -55,7 +55,9 @@ def command_handler(message: Message, bot: Bot, config: BotConfig) -> None:
             bot.send_message(message.chat.id, message_text)
     else:
         with bot.get_session() as session:
-            user = fetch_user_by_chat_id(message.chat.id, session)
+            command_user = fetch_user_by_chat_id(message.chat.id, session)
+            assert command_user
+            user = command_user
         play = bot.screenplay_director.get_play_for_command(command)
         with bot.get_session() as session:
             role = bot.role_provider(user, session)

@@ -1,8 +1,14 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from learn_bot.db.base import Base
 from learn_bot.db.mixins import TimestampsMixin
+
+if TYPE_CHECKING:
+    from learn_bot.db import Group
 
 
 class Curator(TimestampsMixin, Base):
@@ -14,7 +20,7 @@ class Curator(TimestampsMixin, Base):
     telegram_nickname: Mapped[str] = mapped_column(String(length=256))
     telegram_chat_id: Mapped[str | None] = mapped_column(String(length=256))
 
-    groups: Mapped[list["Group"]] = relationship()
+    groups: Mapped[list[Group]] = relationship()
 
     def __repr__(self) -> str:
         return f"Curator {self.first_name} {self.last_name}"

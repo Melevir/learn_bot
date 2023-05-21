@@ -34,6 +34,7 @@ def show_weekly_students_report(
     date_from, date_to = _fetch_current_week_dates()
     with bot.get_session() as session:
         curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
+        assert curator
         groups = fetch_active_groups_for_curator(curator, session)
         group_stats = [_compose_assignment_stat_for_group(g, date_from, date_to, session) for g in groups]
 
