@@ -2,10 +2,12 @@ from telebot.types import Message, ReplyKeyboardRemove
 
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
+from learn_bot.db.fetchers import fetch_curator_by_telegram_nickname
 from learn_bot.screenplay.db.changers import clean_screenplay_context, update_active_act_for, update_screenplay_context
 from learn_bot.screenplay.db.fetchers import fetch_active_act_for, fetch_screenplay_context
 from learn_bot.screenplay.db.models.user import User
 from learn_bot.screenplay.default_handlers import unknown_action_handler
+from learn_bot.services.student import fetch_student_from_message
 
 
 def play_active_act_for(user: User, message: Message, bot: Bot, config: BotConfig) -> None:
@@ -20,7 +22,19 @@ def play_active_act_for(user: User, message: Message, bot: Bot, config: BotConfi
     }
     act_handler = bot.screenplay_director.fetch_act_handler(screenplay_id, act_id)
     with bot.get_session() as session:
-        act_result = act_handler(user, screenplay_context, message, bot, config, session)
+        curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
+        student = fetch_student_from_message(message, session)
+
+        act_result = act_handler(
+            user,
+            screenplay_context,
+            message,
+            bot,
+            config,
+            session,
+            curator,
+            student,
+        )
         update_active_act_for(user.id, act_result.screenplay_id, act_result.act_id, session)
     if act_result.messages:
         for message_text in act_result.messages:

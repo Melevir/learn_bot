@@ -9,11 +9,10 @@ from telebot.types import Message
 
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
-from learn_bot.db import Group
+from learn_bot.db import Curator, Group, Student
 from learn_bot.db.fetchers import (
     fetch_active_groups_for_curator,
     fetch_all_assignments_for_student_in_period,
-    fetch_curator_by_telegram_nickname,
     fetch_students_in_group,
 )
 from learn_bot.screenplay.custom_types import ActResult
@@ -35,9 +34,10 @@ def show_weekly_students_report(
     bot: Bot,
     config: BotConfig,
     session: Session,
+    curator: Curator | None,
+    student: Student | None,
 ) -> ActResult:
     date_from, date_to = _fetch_current_week_dates()
-    curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
     assert curator
     groups = fetch_active_groups_for_curator(curator, session)
     group_stats = [_compose_assignment_stat_for_group(g, date_from, date_to, session) for g in groups]

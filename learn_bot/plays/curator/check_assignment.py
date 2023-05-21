@@ -5,12 +5,12 @@ from telebot.types import Message
 
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
+from learn_bot.db import Curator, Student
 from learn_bot.db.changers import update
 from learn_bot.db.enums import AssignmentStatus
 from learn_bot.db.fetchers import (
     fetch_assignment_by_id,
     fetch_assignments_for_curator,
-    fetch_curator_by_telegram_nickname,
     fetch_oldest_pending_assignment_for_curator,
 )
 from learn_bot.db.utils.urls import is_github_pull_request_url
@@ -30,9 +30,11 @@ def list_pending_assignments(
     bot: Bot,
     config: BotConfig,
     session: Session,
+    curator: Curator | None,
+    student: Student | None,
 ) -> ActResult:
-    curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
     assert curator
+
     if assignments := fetch_assignments_for_curator(
         curator.id,
         statuses=[AssignmentStatus.READY_FOR_REVIEW],
@@ -60,6 +62,8 @@ def start_assignments_check(
     bot: Bot,
     config: BotConfig,
     session: Session,
+    curator: Curator | None,
+    student: Student | None,
 ) -> ActResult:
     if message.text == "Позже":
         return ActResult(messages=["Тогда до скорого"], screenplay_id=None, act_id=None, is_screenplay_over=True)
@@ -74,8 +78,9 @@ def check_oldest_pending_assignment(
     bot: Bot,
     config: BotConfig,
     session: Session,
+    curator: Curator | None,
+    student: Student | None,
 ) -> ActResult:
-    curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
     assert curator
     assignment = fetch_oldest_pending_assignment_for_curator(curator.id, session=session)
     assert assignment
@@ -104,8 +109,9 @@ def finished_assignment_check(
     bot: Bot,
     config: BotConfig,
     session: Session,
+    curator: Curator | None,
+    student: Student | None,
 ) -> ActResult:
-    curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
     assignment = fetch_assignment_by_id(int(context["assignment_id"]), session)
     assert assignment
     assert curator

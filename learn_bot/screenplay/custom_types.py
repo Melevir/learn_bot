@@ -6,6 +6,7 @@ from telebot.types import Message, ReplyKeyboardMarkup
 
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
+from learn_bot.db import Curator, Student
 from learn_bot.screenplay.db.models.user import User
 
 
@@ -20,7 +21,10 @@ class ActResult:
     play_next_act_now: bool = False
 
 
-PlayHandler = Callable[[User, Mapping[str, str], Message, Bot, BotConfig, Session], ActResult]
+PlayHandler = Callable[
+    [User, Mapping[str, str], Message, Bot, BotConfig, Session, Curator | None, Student | None],
+    ActResult,
+]
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True, slots=True)

@@ -5,7 +5,7 @@ from telebot.types import Message
 
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
-from learn_bot.db import Assignment
+from learn_bot.db import Assignment, Curator, Student
 from learn_bot.db.changers import create
 from learn_bot.db.enums import AssignmentStatus
 from learn_bot.db.utils.urls import is_url_accessible, is_valid_github_url
@@ -13,7 +13,6 @@ from learn_bot.markups import compose_post_submit_assignment_markup
 from learn_bot.screenplay.custom_types import ActResult
 from learn_bot.screenplay.db.models.user import User
 from learn_bot.services.assignment import handle_new_assignment
-from learn_bot.services.student import fetch_student_from_message
 
 
 def intro(
@@ -23,6 +22,8 @@ def intro(
     bot: Bot,
     config: BotConfig,
     session: Session,
+    curator: Curator | None,
+    student: Student | None,
 ) -> ActResult:
     return ActResult(
         screenplay_id=context["screenplay_id"],
@@ -38,7 +39,11 @@ def create_assignment(
     bot: Bot,
     config: BotConfig,
     session: Session,
+    curator: Curator | None,
+    student: Student | None,
 ) -> ActResult:
+    assert student
+
     assignment_url = message.text
     if not is_valid_github_url(assignment_url):
         return ActResult(
@@ -60,8 +65,6 @@ def create_assignment(
                 ),
             ],
         )
-    student = fetch_student_from_message(message, session)
-    assert student
     assignment = Assignment(url=assignment_url, student_id=student.id, status=AssignmentStatus.READY_FOR_REVIEW)
     create(assignment, session)
     handle_new_assignment(assignment, bot)
@@ -86,6 +89,8 @@ def one_more_assignment(
     bot: Bot,
     config: BotConfig,
     session: Session,
+    curator: Curator | None,
+    student: Student | None,
 ) -> ActResult:
     if message.text == "Да, сдам ещё одну":
         return ActResult(screenplay_id=context["screenplay_id"], act_id="create_assignment", play_next_act_now=True)
