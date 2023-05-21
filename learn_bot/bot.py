@@ -112,14 +112,8 @@ def _compose_screenplay_director() -> ScreenplayDirector:
         list_pending_assignments,
         start_assignments_check,
     )
-    from learn_bot.plays.curator.weekly_student_report import (
-        show_weekly_students_report,
-    )
-    from learn_bot.plays.student.submit_assignment import (
-        create_assignment,
-        intro,
-        one_more_assignment,
-    )
+    from learn_bot.plays.curator.weekly_student_report import show_weekly_students_report
+    from learn_bot.plays.student.submit_assignment import create_assignment, intro, one_more_assignment
     from learn_bot.screenplay.custom_types import ScreenPlay
     from learn_bot.screenplay.director import ScreenplayDirector
 

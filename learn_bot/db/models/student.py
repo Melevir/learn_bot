@@ -7,10 +7,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from learn_bot.db.base import Base
 from learn_bot.db.mixins import TimestampsMixin
-from learn_bot.db.models.group import Group
 
 if TYPE_CHECKING:
     from learn_bot.db.models.assignment import Assignment
+    from learn_bot.db.models.group import Group
 
 
 class Student(TimestampsMixin, Base):

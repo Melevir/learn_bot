@@ -2,10 +2,7 @@ import logging
 
 from learn_bot.bot import Bot
 from learn_bot.db import Assignment
-from learn_bot.screenplay.db.fetchers import (
-    fetch_user_by_chat_id,
-    fetch_user_by_telegram_nickname,
-)
+from learn_bot.screenplay.db.fetchers import fetch_user_by_chat_id, fetch_user_by_telegram_nickname
 
 logger = logging.getLogger(__name__)
 

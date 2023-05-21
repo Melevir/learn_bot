@@ -1,10 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from sqlalchemy import Enum, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from learn_bot.db import Student
 from learn_bot.db.base import Base
 from learn_bot.db.enums import AssignmentStatus
 from learn_bot.db.mixins import TimestampsMixin
+
+if TYPE_CHECKING:
+    from learn_bot.db import Student
 
 
 class Assignment(TimestampsMixin, Base):

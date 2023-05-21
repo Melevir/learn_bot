@@ -3,14 +3,7 @@ import datetime
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from learn_bot.db import (
-    Assignment,
-    Course,
-    Curator,
-    Enrollment,
-    Group,
-    Student,
-)
+from learn_bot.db import Assignment, Course, Curator, Enrollment, Group, Student
 from learn_bot.db.enums import AssignmentStatus
 from learn_bot.screenplay.db.models.user import User
 

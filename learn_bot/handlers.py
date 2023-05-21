@@ -4,11 +4,7 @@ from telebot.types import Message
 
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
-from learn_bot.screenplay.db.changers import (
-    get_or_create_user_from,
-    save_message_to_db,
-    update_active_act_for,
-)
+from learn_bot.screenplay.db.changers import get_or_create_user_from, save_message_to_db, update_active_act_for
 from learn_bot.screenplay.db.fetchers import fetch_user_by_chat_id
 from learn_bot.screenplay.default_handlers import unknown_action_handler
 from learn_bot.screenplay.services.play_act import play_active_act_for

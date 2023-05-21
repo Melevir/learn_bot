@@ -7,10 +7,10 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from learn_bot.db.base import Base
 from learn_bot.db.mixins import TimestampsMixin
-from learn_bot.db.models.curator import Curator
-from learn_bot.db.models.enrollment import Enrollment
 
 if TYPE_CHECKING:
+    from learn_bot.db.models.curator import Curator
+    from learn_bot.db.models.enrollment import Enrollment
     from learn_bot.db.models.student import Student
 
 

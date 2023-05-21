@@ -2,15 +2,8 @@ from telebot.types import Message, ReplyKeyboardRemove
 
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
-from learn_bot.screenplay.db.changers import (
-    clean_screenplay_context,
-    update_active_act_for,
-    update_screenplay_context,
-)
-from learn_bot.screenplay.db.fetchers import (
-    fetch_active_act_for,
-    fetch_screenplay_context,
-)
+from learn_bot.screenplay.db.changers import clean_screenplay_context, update_active_act_for, update_screenplay_context
+from learn_bot.screenplay.db.fetchers import fetch_active_act_for, fetch_screenplay_context
 from learn_bot.screenplay.db.models.user import User
 from learn_bot.screenplay.default_handlers import unknown_action_handler
 

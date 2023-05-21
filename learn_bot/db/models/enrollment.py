@@ -6,12 +6,11 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from learn_bot.db import Course
 from learn_bot.db.base import Base
 from learn_bot.db.mixins import TimestampsMixin
 
 if TYPE_CHECKING:
-    from learn_bot.db import Group
+    from learn_bot.db import Course, Group
 
 
 class Enrollment(TimestampsMixin, Base):
