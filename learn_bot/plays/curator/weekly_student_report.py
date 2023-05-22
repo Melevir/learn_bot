@@ -54,7 +54,7 @@ def show_weekly_students_report(
 
 def _fetch_current_week_dates() -> tuple[datetime.date, datetime.date]:
     today = datetime.date.today()
-    return today - datetime.timedelta(days=today.weekday()), today
+    return today - datetime.timedelta(days=today.weekday()), today + datetime.timedelta(days=1)
 
 
 def _compose_assignment_stat_for_group(
