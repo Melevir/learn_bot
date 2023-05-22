@@ -16,7 +16,6 @@ def test__submit_assignment__success_case(
         play_name="student.submit_assignment",
         user_phrases=[
             correct_assignment_url,
-            "Нет, пока хватит",
         ],
     )
     assignments = fetch_all_assignments_for_student(student, db_session)

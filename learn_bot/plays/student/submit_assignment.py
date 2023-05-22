@@ -9,7 +9,6 @@ from learn_bot.db import Assignment, AssignmentStatusHistory, Curator, Student
 from learn_bot.db.changers import create
 from learn_bot.db.enums import AssignmentStatus
 from learn_bot.db.utils.urls import is_url_accessible, is_valid_github_url
-from learn_bot.markups import compose_post_submit_assignment_markup
 from learn_bot.screenplay.custom_types import ActResult
 from learn_bot.screenplay.db.models.user import User
 from learn_bot.services.assignment import handle_new_assignment
@@ -76,29 +75,11 @@ def create_assignment(
     handle_new_assignment(assignment, bot)
     curator_name = student.group.curator.first_name
     return ActResult(
-        screenplay_id=context["screenplay_id"],
-        act_id="one_more_assignment",
+        screenplay_id=None,
+        act_id=None,
         messages=[
-            (
-                f"Записал! Дам знать, как {curator_name} проверит твою работу. "
-                f"Хочешь сдать ещё одну?"
-            ),
+            f"Записал! Дам знать, как {curator_name} проверит твою работу",
+            "Если хочешь сдать ещё одну работу, повтори команду /submit",
         ],
-        replay_markup=compose_post_submit_assignment_markup(),
+        is_screenplay_over=True,
     )
-
-
-def one_more_assignment(
-    user: User,
-    context: Mapping[str, str],
-    message: Message,
-    bot: Bot,
-    config: BotConfig,
-    session: Session,
-    curator: Curator | None,
-    student: Student | None,
-) -> ActResult:
-    if message.text == "Да, сдам ещё одну":
-        return ActResult(screenplay_id=context["screenplay_id"], act_id="create_assignment", play_next_act_now=True)
-    else:
-        return ActResult(messages=["Тогда до скорого"], screenplay_id=None, act_id=None, is_screenplay_over=True)

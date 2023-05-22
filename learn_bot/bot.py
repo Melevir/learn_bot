@@ -113,7 +113,7 @@ def _compose_screenplay_director() -> ScreenplayDirector:
         start_assignments_check,
     )
     from learn_bot.plays.curator.weekly_student_report import show_weekly_students_report
-    from learn_bot.plays.student.submit_assignment import create_assignment, intro, one_more_assignment
+    from learn_bot.plays.student.submit_assignment import create_assignment, intro
     from learn_bot.screenplay.custom_types import ScreenPlay
     from learn_bot.screenplay.director import ScreenplayDirector
 
@@ -125,7 +125,6 @@ def _compose_screenplay_director() -> ScreenplayDirector:
             acts=[
                 ("intro", intro),
                 ("create_assignment", create_assignment),
-                ("one_more_assignment", one_more_assignment),
             ],
             allowed_for_roles=["student"],
             command_to_start="submit",
