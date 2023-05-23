@@ -42,7 +42,7 @@ class BotWithDatabaseAccessMixin:
             text: str,
             parse_mode: str | None = None,
             entities: list[MessageEntity] | None = None,
-            disable_web_page_preview: bool | None = None,
+            disable_web_page_preview: bool = True,
             disable_notification: bool | None = None,
             protect_content: bool | None = None,
             reply_to_message_id: int | None = None,
