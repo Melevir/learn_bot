@@ -121,3 +121,18 @@ def fetch_all_assignments_for_student_in_period(
             Assignment.created_at <= date_to,
         ).order_by(Assignment.created_at),
     ).all())
+
+
+def fetch_assignments_by_url(
+    assignment_url: str,
+    student_id: int,
+    statuses: set[AssignmentStatus],
+    session: Session,
+) -> list[Assignment]:
+    return list(session.scalars(
+        select(Assignment).filter(
+            Assignment.student_id == student_id,
+            Assignment.url == assignment_url,
+            Assignment.status.in_(statuses),
+        ).order_by(Assignment.created_at),
+    ).all())

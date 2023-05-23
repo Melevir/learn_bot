@@ -13,6 +13,7 @@ from learn_bot.bot import Bot, compose_bot
 from learn_bot.config import BotConfig
 from learn_bot.db import Assignment, AssignmentStatusHistory, Course, Curator, Enrollment, Group, Student
 from learn_bot.db.changers import create, delete_all_records_from
+from learn_bot.db.enums import AssignmentStatus
 from learn_bot.screenplay.db.changers import update_active_act_for
 from learn_bot.screenplay.db.fetchers import fetch_user_by_chat_id
 from learn_bot.screenplay.db.models.message import ChatMessage
@@ -188,6 +189,18 @@ def user(db_session: Session) -> User:
             last_name="Doe",
             telegram_nickname="john",
             telegram_chat_id="444444",
+        ),
+        db_session,
+    ))
+
+
+@pytest.fixture
+def pending_assignment(db_session: Session, correct_assignment_url: str, student: Student) -> Assignment:
+    return cast(Assignment, create(
+        Assignment(
+            url=correct_assignment_url,
+            status=AssignmentStatus.READY_FOR_REVIEW,
+            student_id=student.id,
         ),
         db_session,
     ))
