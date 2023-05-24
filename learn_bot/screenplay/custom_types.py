@@ -7,6 +7,7 @@ from telebot.types import Message, ReplyKeyboardMarkup
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
 from learn_bot.db import Curator, Student
+from learn_bot.db.enums import UserRole
 from learn_bot.screenplay.db.models.user import User
 
 
@@ -31,6 +32,6 @@ PlayHandler = Callable[
 class ScreenPlay:
     name: str
     acts: list[tuple[str, PlayHandler]]
-    allowed_for_roles: list[str]
+    allowed_for_roles: set[UserRole]
     short_description: str
     command_to_start: str | None = None

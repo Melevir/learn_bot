@@ -9,3 +9,14 @@ class AssignmentStatus(Enum):
     @classmethod
     def get_pending_for_student_statuses(cls) -> set["AssignmentStatus"]:
         return {cls.READY_FOR_REVIEW, cls.REVIEW_IN_PROGRESS}
+
+
+class UserRole(Enum):
+    STUDENT = "STUDENT"
+    CURATOR = "CURATOR"
+    ADMIN = "ADMIN"
+    ANONYMOUS = "ANONYMOUS"
+
+    @property
+    def is_anonymous(self) -> bool:
+        return self == UserRole.ANONYMOUS

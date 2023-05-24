@@ -42,7 +42,7 @@ def command_handler(message: Message, bot: Bot, config: BotConfig) -> None:
             update_active_act_for(user.id, None, None, session)
             with bot.get_session() as session:
                 role = bot.role_provider(user, session)
-            if role is None:
+            if role.is_anonymous:
                 bot.send_message(message.chat.id, "Кажется, мы с вами не знакомы.")
                 return
             allowed_plays = [p for p in bot.screenplay_director.fetch_plays_for_role(role) if p.command_to_start]

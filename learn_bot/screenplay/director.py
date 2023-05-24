@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 
+from learn_bot.db.enums import UserRole
 from learn_bot.screenplay.custom_types import PlayHandler, ScreenPlay
 
 
@@ -22,7 +23,7 @@ class ScreenplayDirector:
         assert self._handlers
         return dict(self._handlers[screenplay_id].acts)[act_id]
 
-    def fetch_plays_for_role(self, role: str) -> list[ScreenPlay]:
+    def fetch_plays_for_role(self, role: UserRole) -> list[ScreenPlay]:
         assert self._handlers
         return [h for h in self._handlers.values() if role in h.allowed_for_roles]
 

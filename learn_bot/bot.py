@@ -11,6 +11,7 @@ from telebot.types import Message, MessageEntity
 
 from learn_bot.config import BotConfig
 from learn_bot.db.changers import create
+from learn_bot.db.enums import UserRole
 from learn_bot.db.fetchers import fetch_role_by_user
 from learn_bot.screenplay.db.models.message import ChatMessage
 from learn_bot.screenplay.db.models.user import User
@@ -25,7 +26,7 @@ class BotWithDatabaseAccessMixin:
     def __init__(
         self,
         db_engine: Engine,
-        role_provider: Callable[[User, Session], str | None],
+        role_provider: Callable[[User, Session], UserRole],
         *args: Any,
         **kwargs: Any,
     ) -> None:
@@ -126,7 +127,7 @@ def _compose_screenplay_director() -> ScreenplayDirector:
                 ("intro", intro),
                 ("create_assignment", create_assignment),
             ],
-            allowed_for_roles=["student"],
+            allowed_for_roles={UserRole.STUDENT},
             command_to_start="submit",
         ),
     )
@@ -140,7 +141,7 @@ def _compose_screenplay_director() -> ScreenplayDirector:
                 ("check", check_oldest_pending_assignment),
                 ("checked", finished_assignment_check),
             ],
-            allowed_for_roles=["curator"],
+            allowed_for_roles={UserRole.CURATOR},
             command_to_start="check",
         ),
     )
@@ -151,7 +152,7 @@ def _compose_screenplay_director() -> ScreenplayDirector:
             acts=[
                 ("show", show_weekly_students_report),
             ],
-            allowed_for_roles=["curator"],
+            allowed_for_roles={UserRole.CURATOR},
             command_to_start="assignments_report",
         ),
     )
