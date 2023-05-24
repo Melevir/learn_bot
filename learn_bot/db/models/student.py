@@ -21,6 +21,7 @@ class Student(TimestampsMixin, Base):
     last_name: Mapped[str] = mapped_column(String(length=256))
     telegram_nickname: Mapped[str | None] = mapped_column(String(length=256), unique=True)
     telegram_chat_id: Mapped[str | None] = mapped_column(String(length=256), unique=True)
+    auth_code: Mapped[str | None] = mapped_column(String(length=256), unique=True)
 
     group_id: Mapped[int] = mapped_column(ForeignKey("group.id"))
 

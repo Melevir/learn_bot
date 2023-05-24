@@ -18,7 +18,7 @@ def message_handler(message: Message, bot: Bot, config: BotConfig) -> None:
 
     with bot.get_session() as session:
         save_message_to_db(message, session)
-        user = fetch_user_by_chat_id(message.chat.id, session)
+        user = fetch_user_by_chat_id(str(message.chat.id), session)
     if user is None:
         bot.send_message(message.chat.id, "Кажется, мы незнакомы. Пожалуйста, скажи мне /start")
         return
@@ -42,10 +42,10 @@ def command_handler(message: Message, bot: Bot, config: BotConfig) -> None:
             update_active_act_for(user.id, None, None, session)
             with bot.get_session() as session:
                 role = bot.role_provider(user, session)
-            if role.is_anonymous:
+            allowed_plays = [p for p in bot.screenplay_director.fetch_plays_for_role(role) if p.command_to_start]
+            if not allowed_plays:
                 bot.send_message(message.chat.id, "Кажется, мы с вами не знакомы.")
                 return
-            allowed_plays = [p for p in bot.screenplay_director.fetch_plays_for_role(role) if p.command_to_start]
             allowed_commands_lines = "\n".join([
                 f"- /{p.command_to_start} – {p.short_description}"
                 for p in allowed_plays
@@ -54,7 +54,7 @@ def command_handler(message: Message, bot: Bot, config: BotConfig) -> None:
             bot.send_message(message.chat.id, message_text)
     else:
         with bot.get_session() as session:
-            command_user = fetch_user_by_chat_id(message.chat.id, session)
+            command_user = fetch_user_by_chat_id(str(message.chat.id), session)
             assert command_user
             user = command_user
         play = bot.screenplay_director.get_play_for_command(command)

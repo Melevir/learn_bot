@@ -107,6 +107,7 @@ def _configure_handlers(bot: Bot, config: BotConfig) -> None:
 
 
 def _compose_screenplay_director() -> ScreenplayDirector:
+    from learn_bot.plays.anonymous.auth import code_is_correct, code_is_incorrect, process_code, start
     from learn_bot.plays.curator.check_assignment import (
         check_oldest_pending_assignment,
         finished_assignment_check,
@@ -154,6 +155,20 @@ def _compose_screenplay_director() -> ScreenplayDirector:
             ],
             allowed_for_roles={UserRole.CURATOR},
             command_to_start="assignments_report",
+        ),
+    )
+    director.register_play(
+        ScreenPlay(
+            name="anonymous.auth",
+            short_description="познакомиться",
+            acts=[
+                ("start", start),
+                ("process_code", process_code),
+                ("code_is_correct", code_is_correct),
+                ("code_is_incorrect", code_is_incorrect),
+            ],
+            allowed_for_roles={UserRole.ADMIN},
+            command_to_start="auth",
         ),
     )
 
