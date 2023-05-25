@@ -167,7 +167,7 @@ def _compose_screenplay_director() -> ScreenplayDirector:
                 ("code_is_correct", code_is_correct),
                 ("code_is_incorrect", code_is_incorrect),
             ],
-            allowed_for_roles={UserRole.ADMIN},
+            allowed_for_roles={UserRole.ANONYMOUS},
             command_to_start="auth",
         ),
     )

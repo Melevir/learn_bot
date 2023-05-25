@@ -4,6 +4,7 @@ from telebot.types import Message
 
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
+from learn_bot.message_composers import compose_available_commands_message
 from learn_bot.screenplay.db.changers import get_or_create_user_from, save_message_to_db, update_active_act_for
 from learn_bot.screenplay.db.fetchers import fetch_user_by_chat_id
 from learn_bot.screenplay.default_handlers import unknown_action_handler
@@ -40,17 +41,7 @@ def command_handler(message: Message, bot: Bot, config: BotConfig) -> None:
                 session,
             )
             update_active_act_for(user.id, None, None, session)
-            with bot.get_session() as session:
-                role = bot.role_provider(user, session)
-            allowed_plays = [p for p in bot.screenplay_director.fetch_plays_for_role(role) if p.command_to_start]
-            if not allowed_plays:
-                bot.send_message(message.chat.id, "Кажется, мы с вами не знакомы.")
-                return
-            allowed_commands_lines = "\n".join([
-                f"- /{p.command_to_start} – {p.short_description}"
-                for p in allowed_plays
-            ])
-            message_text = f"Вам доступны следующие команды:\n{allowed_commands_lines}"
+            message_text = compose_available_commands_message(user, bot)
             bot.send_message(message.chat.id, message_text)
     else:
         with bot.get_session() as session:

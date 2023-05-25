@@ -24,6 +24,14 @@ def fetch_curator_by_telegram_nickname(nickname: str | None, session: Session) -
     )
 
 
+def fetch_student_by_id(student_id: int, session: Session) -> Student | None:
+    return session.scalar(
+        select(Student).where(
+            Student.id == student_id,
+        ),
+    )
+
+
 def fetch_student_by_chat_id(chat_id: str | None, session: Session) -> Student | None:
     if chat_id is None:
         return None
@@ -40,6 +48,15 @@ def fetch_student_by_telegram_nickname(nickname: str | None, session: Session) -
     return session.scalar(
         select(Student).where(
             Student.telegram_nickname == nickname.lower(),
+        ),
+    )
+
+
+def fetch_not_connected_student_by_auth_code(auth_code: str, session: Session) -> Student | None:
+    return session.scalar(
+        select(Student).where(
+            Student.auth_code == auth_code,
+            Student.telegram_chat_id.is_(None),
         ),
     )
 
@@ -80,6 +97,7 @@ def fetch_role_by_user(user: User, session: Session) -> UserRole:
         fetch_student_by_telegram_nickname(user.telegram_nickname, session)
         or fetch_student_by_chat_id(user.telegram_chat_id, session)
     )
+    print(f"{curator=} {student=}")
     return (
         UserRole.CURATOR
         if curator is not None

@@ -72,7 +72,7 @@ def get_or_create_user_from(
     if message.from_user.username:
         if user := fetch_user_by_telegram_nickname(message.from_user.username, session):
             return user
-    if user := fetch_user_by_chat_id(message.chat.id, session):
+    if user := fetch_user_by_chat_id(str(message.chat.id), session):
         return user
     user = User(
         first_name=message.from_user.first_name,
