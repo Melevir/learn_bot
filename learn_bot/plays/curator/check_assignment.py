@@ -6,7 +6,7 @@ from telebot.types import Message
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
 from learn_bot.db import AssignmentStatusHistory, Curator, Student
-from learn_bot.db.changers import create, update
+from learn_bot.db.changers import create, drop_all_in_progress_reviews_to_ready_for_review, update
 from learn_bot.db.enums import AssignmentStatus
 from learn_bot.db.fetchers import (
     fetch_assignment_by_id,
@@ -34,6 +34,8 @@ def list_pending_assignments(
     student: Student | None,
 ) -> ActResult:
     assert curator
+
+    drop_all_in_progress_reviews_to_ready_for_review(curator.id, session)
 
     if assignments := fetch_assignments_for_curator(
         curator.id,
