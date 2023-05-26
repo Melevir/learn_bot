@@ -95,7 +95,7 @@ class SentryExceptionHandler:
 
 
 def _configure_handlers(bot: Bot, config: BotConfig) -> None:
-    from learn_bot.handlers import command_handler, message_handler
+    from learn_bot.handlers import callback_query_handler, command_handler, message_handler
 
     bot.register_message_handler(
         functools.partial(command_handler, bot=bot, config=config),
@@ -103,6 +103,10 @@ def _configure_handlers(bot: Bot, config: BotConfig) -> None:
     )
     bot.register_message_handler(
         functools.partial(message_handler, bot=bot, config=config),
+    )
+
+    bot.callback_query_handler(func=lambda call: True)(
+        functools.partial(callback_query_handler, bot=bot, config=config),
     )
 
 

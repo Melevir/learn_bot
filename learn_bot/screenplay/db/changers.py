@@ -2,7 +2,7 @@ from typing import Mapping
 
 from sqlalchemy import delete, update
 from sqlalchemy.orm import Session
-from telebot.types import Message
+from telebot.types import CallbackQuery, Message
 
 from learn_bot.db.changers import create
 from learn_bot.screenplay.db.fetchers import (
@@ -91,6 +91,16 @@ def save_message_to_db(message: Message, session: Session) -> ChatMessage:
         telegram_chat_id=message.chat.id,
         from_user_id=message.from_user.id,
         message=message.text,
+    )
+    create(chat_message, session)
+    return chat_message
+
+
+def save_callback_query_to_db(call: CallbackQuery, session: Session) -> ChatMessage:
+    chat_message = ChatMessage(
+        telegram_chat_id=call.message.chat.id,
+        from_user_id=call.from_user.id,
+        message=f"Callback query with data: {call.data}",
     )
     create(chat_message, session)
     return chat_message

@@ -35,3 +35,11 @@ class ScreenPlay:
     allowed_for_roles: set[UserRole]
     short_description: str
     command_to_start: str | None = None
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
+class ScreenPlayRequest:
+    user_id: int
+    screenplay_id: str
+    act_id: str | None
+    context: Mapping[str, str]
