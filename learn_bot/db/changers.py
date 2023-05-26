@@ -2,6 +2,7 @@ from typing import Type
 
 from sqlalchemy.orm import Session
 
+from learn_bot.db import AssignmentStatusHistory
 from learn_bot.db.base import Base
 from learn_bot.db.enums import AssignmentStatus
 from learn_bot.db.fetchers import fetch_assignments_for_curator
@@ -29,3 +30,7 @@ def drop_all_in_progress_reviews_to_ready_for_review(curator_id: int, session: S
     for assignment in assignments:
         assignment.status = AssignmentStatus.READY_FOR_REVIEW
         update(assignment, session)
+        create(
+            AssignmentStatusHistory(new_status=AssignmentStatus.REVIEWED, assignment_id=assignment.id),
+            session,
+        )
