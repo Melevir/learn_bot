@@ -112,6 +112,7 @@ def _configure_handlers(bot: Bot, config: BotConfig) -> None:
 
 def _compose_screenplay_director() -> ScreenplayDirector:
     from learn_bot.plays.anonymous.auth import code_is_correct, code_is_incorrect, process_code, start
+    from learn_bot.plays.authorized.menu import show
     from learn_bot.plays.curator.check_assignment import (
         check_oldest_pending_assignment,
         finished_assignment_check,
@@ -173,6 +174,18 @@ def _compose_screenplay_director() -> ScreenplayDirector:
             ],
             allowed_for_roles={UserRole.ANONYMOUS},
             command_to_start="auth",
+        ),
+    )
+    director.register_play(
+        ScreenPlay(
+            name="authorized.menu",
+            short_description="меню",
+            acts=[
+                ("show", show),
+            ],
+            allowed_for_roles={UserRole.STUDENT, UserRole.CURATOR},
+            command_to_start="menu",
+            is_hidden_from_commands_list=True,
         ),
     )
 
