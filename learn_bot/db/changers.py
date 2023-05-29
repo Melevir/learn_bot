@@ -1,11 +1,13 @@
 from typing import Type
 
 from sqlalchemy.orm import Session
+from telebot.types import Message
 
-from learn_bot.db import AssignmentStatusHistory
+from learn_bot.db import AssignmentStatusHistory, Curator, Student
 from learn_bot.db.base import Base
 from learn_bot.db.enums import AssignmentStatus
 from learn_bot.db.fetchers import fetch_assignments_for_curator
+from learn_bot.screenplay.db.models.user import User
 
 
 def create(model_obj: Base, session: Session) -> Base:
@@ -34,3 +36,9 @@ def drop_all_in_progress_reviews_to_ready_for_review(curator_id: int, session: S
             AssignmentStatusHistory(new_status=AssignmentStatus.REVIEWED, assignment_id=assignment.id),
             session,
         )
+
+
+def update_contacts(entity: Student | Curator | User, message: Message, session: Session) -> None:
+    if entity.telegram_chat_id is None:
+        entity.telegram_chat_id = message.chat.id
+        update(entity, session)

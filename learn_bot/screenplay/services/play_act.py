@@ -2,11 +2,13 @@ from telebot.types import Message, ReplyKeyboardRemove
 
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
-from learn_bot.db.fetchers import fetch_curator_by_telegram_nickname
+from learn_bot.db.changers import update_contacts
+from learn_bot.screenplay.custom_types import ActResult
 from learn_bot.screenplay.db.changers import clean_screenplay_context, update_active_act_for, update_screenplay_context
 from learn_bot.screenplay.db.fetchers import fetch_active_act_for, fetch_screenplay_context
 from learn_bot.screenplay.db.models.user import User
 from learn_bot.screenplay.default_handlers import unknown_action_handler
+from learn_bot.services.curator import fetch_curator_from_message
 from learn_bot.services.student import fetch_student_from_message
 
 
@@ -22,8 +24,12 @@ def play_active_act_for(user: User, message: Message, bot: Bot, config: BotConfi
     }
     act_handler = bot.screenplay_director.fetch_act_handler(screenplay_id, act_id)
     with bot.get_session() as session:
-        curator = fetch_curator_by_telegram_nickname(message.from_user.username, session)
+        curator = fetch_curator_from_message(message, session)
         student = fetch_student_from_message(message, session)
+        if curator:
+            update_contacts(curator, message, session)
+        if student:
+            update_contacts(student, message, session)
 
         act_result = act_handler(
             user,
@@ -36,6 +42,17 @@ def play_active_act_for(user: User, message: Message, bot: Bot, config: BotConfi
             student,
         )
         update_active_act_for(user.id, act_result.screenplay_id, act_result.act_id, session)
+    _handle_act_result(act_result, user, message, bot, config, screenplay_id)
+
+
+def _handle_act_result(
+    act_result: ActResult,
+    user: User,
+    message: Message,
+    bot: Bot,
+    config: BotConfig,
+    screenplay_id: str,
+) -> None:
     if act_result.messages:
         for message_text in act_result.messages:
             bot.send_message(

@@ -7,6 +7,6 @@ from learn_bot.db.fetchers import fetch_student_by_chat_id, fetch_student_by_tel
 
 def fetch_student_from_message(message: Message, session: Session) -> Student | None:
     return (
-        fetch_student_by_telegram_nickname(message.from_user.username, session)
-        or fetch_student_by_chat_id(message.chat.id, session)
+        fetch_student_by_chat_id(str(message.chat.id), session)
+        or fetch_student_by_telegram_nickname(message.from_user.username, session)
     )
