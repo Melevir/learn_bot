@@ -14,6 +14,16 @@ def fetch_courses(session: Session) -> list[Course]:
     ).all())
 
 
+def fetch_curator_by_chat_id(chat_id: str | None, session: Session) -> Curator | None:
+    if chat_id is None:
+        return None
+    return session.scalar(
+        select(Curator).where(
+            Curator.telegram_chat_id == chat_id,
+        ),
+    )
+
+
 def fetch_curator_by_telegram_nickname(nickname: str | None, session: Session) -> Curator | None:
     if nickname is None:
         return None

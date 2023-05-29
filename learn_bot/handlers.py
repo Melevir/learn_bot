@@ -5,14 +5,13 @@ from telebot.types import CallbackQuery, Message
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
 from learn_bot.message_composers import compose_available_commands_message
-from learn_bot.screenplay.composers import compose_play_request_from
 from learn_bot.screenplay.db.changers import (
     get_or_create_user_from,
     save_callback_query_to_db,
     save_message_to_db,
     update_active_act_for,
 )
-from learn_bot.screenplay.db.fetchers import fetch_user_by_chat_id
+from learn_bot.screenplay.db.fetchers import fetch_screenplay_request_by_id, fetch_user_by_chat_id
 from learn_bot.screenplay.default_handlers import unknown_action_handler
 from learn_bot.screenplay.services.play_act import play_active_act_for
 from learn_bot.screenplay.services.play_request import process_play_request
@@ -68,9 +67,11 @@ def command_handler(message: Message, bot: Bot, config: BotConfig) -> None:
 
 def callback_query_handler(call: CallbackQuery, bot: Bot, config: BotConfig) -> None:
     with bot.get_session() as session:
-        play_request = compose_play_request_from(call, session)
+        play_request_id = int(call.data)
+        play_request = fetch_screenplay_request_by_id(play_request_id, session)
         save_callback_query_to_db(call, session)
         user = fetch_user_by_chat_id(str(call.message.chat.id), session)
         assert user
+        assert play_request
 
         process_play_request(play_request, user, call.message, bot, config, session)

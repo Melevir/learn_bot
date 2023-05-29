@@ -2,7 +2,7 @@ import dataclasses
 from typing import Callable, Mapping
 
 from sqlalchemy.orm import Session
-from telebot.types import Message, ReplyKeyboardMarkup
+from telebot.types import InlineKeyboardMarkup, Message, ReplyKeyboardMarkup
 
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
@@ -16,7 +16,7 @@ class ActResult:
     screenplay_id: str | None
     act_id: str | None
     messages: list[str] | None = None
-    replay_markup: ReplyKeyboardMarkup | None = None
+    replay_markup: ReplyKeyboardMarkup | InlineKeyboardMarkup | None = None
     context: Mapping[str, str] | None = None
     is_screenplay_over: bool = False
     play_next_act_now: bool = False
@@ -35,11 +35,3 @@ class ScreenPlay:
     allowed_for_roles: set[UserRole]
     short_description: str
     command_to_start: str | None = None
-
-
-@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
-class ScreenPlayRequest:
-    user_id: int
-    screenplay_id: str
-    act_id: str | None
-    context: Mapping[str, str]

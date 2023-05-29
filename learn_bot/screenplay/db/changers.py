@@ -1,4 +1,5 @@
-from typing import Mapping
+import json
+from typing import Mapping, cast
 
 from sqlalchemy import delete, update
 from sqlalchemy.orm import Session
@@ -7,11 +8,13 @@ from telebot.types import CallbackQuery, Message
 from learn_bot.db.changers import create
 from learn_bot.screenplay.db.fetchers import (
     fetch_screenplay_context,
+    fetch_screenplay_request,
     fetch_user_by_chat_id,
     fetch_user_by_telegram_nickname,
 )
 from learn_bot.screenplay.db.models.message import ChatMessage
 from learn_bot.screenplay.db.models.screenplay_context import ScreenplayContext
+from learn_bot.screenplay.db.models.screenplay_request import ScreenplayRequest
 from learn_bot.screenplay.db.models.user import User
 
 
@@ -32,6 +35,8 @@ def update_screenplay_context(
     session: Session,
 ) -> None:
     if context := fetch_screenplay_context(user_id, screenplay_id, session):
+        print(f"{context=}")
+        print(f"{new_context=}")
         context |= new_context
         session.execute(
             update(ScreenplayContext).where(
@@ -104,3 +109,25 @@ def save_callback_query_to_db(call: CallbackQuery, session: Session) -> ChatMess
     )
     create(chat_message, session)
     return chat_message
+
+
+def get_or_create_screenplay_request(
+    screenplay_id: str,
+    act_id: str,
+    context: Mapping[str, str] | None,
+    session: Session,
+) -> ScreenplayRequest:
+    encoded_context = json.dumps(context or {})
+    if request := fetch_screenplay_request(screenplay_id, act_id, encoded_context, session):
+        return request
+    return cast(
+        ScreenplayRequest,
+        create(
+            ScreenplayRequest(
+                screenplay_id=screenplay_id,
+                act_id=act_id,
+                context=encoded_context,
+            ),
+            session,
+        ),
+    )

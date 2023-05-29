@@ -1,5 +1,6 @@
 from learn_bot.screenplay.db.models.message import ChatMessage
 from learn_bot.screenplay.db.models.screenplay_context import ScreenplayContext
+from learn_bot.screenplay.db.models.screenplay_request import ScreenplayRequest
 from learn_bot.screenplay.db.models.user import User
 
 from .models.assignment import Assignment

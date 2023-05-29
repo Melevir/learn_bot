@@ -2,6 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from learn_bot.screenplay.db.models.screenplay_context import ScreenplayContext
+from learn_bot.screenplay.db.models.screenplay_request import ScreenplayRequest
 from learn_bot.screenplay.db.models.user import User
 
 
@@ -48,3 +49,29 @@ def fetch_screenplay_context(user_id: int, screenplay_id: str, session: Session)
         ),
     )
     return context_object.data if context_object else {}
+
+
+def fetch_screenplay_request(
+    screenplay_id: str,
+    act_id: str,
+    encoded_context: str,
+    session: Session,
+) -> ScreenplayRequest | None:
+    return session.scalar(
+        select(ScreenplayRequest).where(
+            ScreenplayRequest.screenplay_id == screenplay_id,
+            ScreenplayRequest.act_id == act_id,
+            ScreenplayRequest.context == encoded_context,
+        ),
+    )
+
+
+def fetch_screenplay_request_by_id(
+    screenplay_request_id: int,
+    session: Session,
+) -> ScreenplayRequest | None:
+    return session.scalar(
+        select(ScreenplayRequest).where(
+            ScreenplayRequest.id == screenplay_request_id,
+        ),
+    )
