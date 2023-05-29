@@ -107,7 +107,6 @@ def fetch_role_by_user(user: User, session: Session) -> UserRole:
         fetch_student_by_telegram_nickname(user.telegram_nickname, session)
         or fetch_student_by_chat_id(user.telegram_chat_id, session)
     )
-    print(f"{curator=} {student=}")
     return (
         UserRole.CURATOR
         if curator is not None

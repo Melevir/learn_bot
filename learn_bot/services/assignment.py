@@ -2,6 +2,8 @@ import logging
 
 from learn_bot.bot import Bot
 from learn_bot.db import Assignment
+from learn_bot.markups import compose_curator_check_single_assignment_markup
+from learn_bot.screenplay.db.changers import get_or_create_screenplay_request
 from learn_bot.screenplay.db.fetchers import fetch_user_by_chat_id, fetch_user_by_telegram_nickname
 
 logger = logging.getLogger(__name__)
@@ -12,7 +14,18 @@ def handle_new_assignment(assignment: Assignment, bot: Bot) -> None:
         curator = assignment.student.group.curator
         curator_user = fetch_user_by_telegram_nickname(curator.telegram_nickname, session)
     if curator_user and curator_user.telegram_chat_id:
-        bot.send_message(curator_user.telegram_chat_id, f"{assignment.student.full_name} сдал работу на проверку")
+        play_request = get_or_create_screenplay_request(
+            screenplay_id="curator.check_assignment",
+            act_id="check",
+            context={"assignment_id": str(assignment.id), "check_single_assignment": "true"},
+            session=session,
+        )
+        markup = compose_curator_check_single_assignment_markup(play_request.id)
+        bot.send_message(
+            curator_user.telegram_chat_id,
+            f"{assignment.student.full_name} сдал работу на проверку",
+            reply_markup=markup,
+        )
     else:
         logger.error(f"Not found curator telegram_chat_id ({curator.telegram_nickname})")
 

@@ -84,7 +84,10 @@ def check_oldest_pending_assignment(
     student: Student | None,
 ) -> ActResult:
     assert curator
-    assignment = fetch_oldest_pending_assignment_for_curator(curator.id, session=session)
+    if context.get("assignment_id"):
+        assignment = fetch_assignment_by_id(int(context["assignment_id"]), session)
+    else:
+        assignment = fetch_oldest_pending_assignment_for_curator(curator.id, session=session)
     assert assignment
 
     assignment.status = AssignmentStatus.REVIEW_IN_PROGRESS
@@ -138,12 +141,27 @@ def finished_assignment_check(
     )
     handle_assignment_checked(assignment, bot)
 
-    next_assignment = fetch_oldest_pending_assignment_for_curator(curator.id, session=session)
-    if next_assignment:
+    if context.get("check_single_assignment"):
+        if assignments := fetch_assignments_for_curator(
+                curator.id,
+                statuses=[AssignmentStatus.READY_FOR_REVIEW],
+                session=session,
+        ):
+            message = f"Ещё {len(assignments)} заданий ждёт ревью. Скажи /check когда будешь готов начать их проверять"
+        else:
+            message = "Кроме этой работы у тебя нет работ на проверку."
+        return ActResult(
+            messages=[message],
+            screenplay_id=None,
+            act_id=None,
+            is_screenplay_over=True,
+        )
+
+    if fetch_oldest_pending_assignment_for_curator(curator.id, session=session):
         return ActResult(
             screenplay_id="curator.check_assignment",
             act_id="check",
-            context={"assignment_id": str(assignment.id)},
+            context={"assignment_id": ""},
             play_next_act_now=True,
         )
     else:
