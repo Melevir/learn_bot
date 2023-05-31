@@ -167,3 +167,50 @@ def fetch_assignments_by_url(
             Assignment.status.in_(statuses),
         ).order_by(Assignment.created_at),
     ).all())
+
+
+def find_similar_curator(curator: Curator, session: Session) -> Curator | None:
+    return session.scalar(
+        select(Curator).where(
+            Curator.first_name == curator.first_name,
+            Curator.last_name == curator.last_name,
+        ),
+    )
+
+
+def find_similar_course(course: Course, session: Session) -> Course | None:
+    return session.scalar(
+        select(Course).where(
+            Course.title == course.title,
+        ),
+    )
+
+
+def find_similar_enrollment(enrollment: Enrollment, session: Session) -> Enrollment | None:
+    return session.scalar(
+        select(Enrollment).where(
+            Enrollment.course_id == enrollment.course_id,
+            Enrollment.number == enrollment.number,
+            Enrollment.date_start == enrollment.date_start,
+            Enrollment.date_end == enrollment.date_end,
+        ),
+    )
+
+
+def find_similar_group(group: Group, session: Session) -> Group | None:
+    return session.scalar(
+        select(Group).where(
+            Group.enrollment_id == group.enrollment_id,
+            Group.curator_id == group.curator_id,
+        ),
+    )
+
+
+def find_similar_student(student: Student, session: Session) -> Student | None:
+    return session.scalar(
+        select(Student).where(
+            Student.first_name == student.first_name,
+            Student.last_name == student.last_name,
+            Student.group_id == student.group_id,
+        ),
+    )
