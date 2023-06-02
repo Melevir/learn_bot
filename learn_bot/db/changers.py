@@ -31,6 +31,30 @@ def get_or_create(model_obj: Base, session: Session) -> Base:
     return create(model_obj, session)
 
 
+def create_or_update(model_obj: Base, session: Session) -> Base:
+    finders_map: Mapping[Type[Base], Callable[[Any, Session], Any]] = {
+        Curator: find_similar_curator,
+        Course: find_similar_course,
+        Enrollment: find_similar_enrollment,
+        Group: find_similar_group,
+        Student: find_similar_student,
+    }
+    assert type(model_obj) in finders_map
+    if existing_object := finders_map[type(model_obj)](model_obj, session):
+        copy_all_fields_from_another_object(existing_object, model_obj)
+        return update(existing_object, session)
+    return create(model_obj, session)
+
+
+def copy_all_fields_from_another_object(copy_to: Base, copy_from: Base) -> None:
+    attrs_to_skip = {"id", "created_at", "updated_at", "telegram_chat_id"}
+    attrs_names = type(copy_from).__mapper__.columns.keys()
+    for attr_name in attrs_names:
+        if attr_name in attrs_to_skip:
+            continue
+        setattr(copy_to, attr_name, getattr(copy_from, attr_name))
+
+
 def create(model_obj: Base, session: Session) -> Base:
     session.add(model_obj)
     session.commit()

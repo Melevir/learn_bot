@@ -1,5 +1,5 @@
 import datetime
-from typing import Mapping
+from typing import Mapping, cast
 
 from pyairtable import Table
 from sqlalchemy.orm import Session
@@ -7,17 +7,18 @@ from sqlalchemy.orm import Session
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
 from learn_bot.db import Course, Curator, Enrollment, Group, Student
-from learn_bot.db.changers import create
+from learn_bot.db.changers import create_or_update
 
 
-def process_course(session: Session) -> Course:
-    course = Course(title="Learn Python")
-    create(course, session)
-    return course
+def process_course(session: Session, is_advanced: bool) -> Course:
+    title = "Learn Python Advanced" if is_advanced else "Learn Python"
+    course = Course(title=title)
+    return cast(Course, create_or_update(course, session))
 
 
 def process_enrollment(
     course_num_to_import: int,
+    course_slug_to_import: str,
     course_id: int,
     session: Session,
     config: BotConfig,
@@ -27,14 +28,14 @@ def process_enrollment(
     assert config.airtable_course_table_id
     enrollments_table = Table(config.airtable_api_token, config.airtable_database_id, config.airtable_course_table_id)
     enrollments = enrollments_table.all()  # type: ignore[no-untyped-call]
-    enrollment = [e for e in enrollments if e["fields"].get("course_number") == str(course_num_to_import)][0]
+    enrollment = [e for e in enrollments if e["fields"].get("course_number") == course_slug_to_import][0]
     db_enrollment = Enrollment(
         number=course_num_to_import,
         date_start=datetime.date.fromisoformat(enrollment["fields"]["start_date"]),
         date_end=datetime.date.fromisoformat(enrollment["fields"]["end_date"]),
         course_id=course_id,
     )
-    create(db_enrollment, session)
+    db_enrollment = cast(Enrollment, create_or_update(db_enrollment, session))
     return {enrollment["id"]: db_enrollment.id}
 
 
@@ -53,7 +54,7 @@ def process_curators(session: Session, config: BotConfig) -> Mapping[str, int]:
             last_name=last_name,
             telegram_nickname=curator["fields"]["telegram"].strip("@-"),
         )
-        create(db_curator, session)
+        db_curator = cast(Curator, create_or_update(db_curator, session))
         curators_map[curator["id"]] = db_curator.id
     return curators_map
 
@@ -78,7 +79,7 @@ def process_groups(
             enrollment_id=enrollments_map[group["fields"]["course"][0]],
             curator_id=curators_map[group["fields"]["courator"][0]],
         )
-        create(db_group, session)
+        db_group = cast(Group, create_or_update(db_group, session))
         groups_map[group["id"]] = db_group.id
     return groups_map
 
@@ -98,8 +99,8 @@ def process_students(
         if "group" in s["fields"] and s["fields"]["group"][0] in groups_map
     ]
     for student in students:
-        telegram_nickname = (
-            (student["fields"]["telegram"].strip("-@") or None)
+        telegram_nickname = (  # noqa: ECE001
+            (student["fields"]["telegram"].strip("-@").lower() or None)
             if "telegram" in student["fields"]
             else None
         )
@@ -108,15 +109,25 @@ def process_students(
             last_name=student["fields"]["last_name"],
             telegram_nickname=telegram_nickname,
             group_id=groups_map[student["fields"]["group"][0]],
+            auth_code=student["fields"]["bot_auth_code"],
         )
-        create(db_student, session)
+        db_student = cast(Student, create_or_update(db_student, session))
 
 
 def run(bot: Bot, config: BotConfig) -> None:
-    course_num_to_import = 28
     with bot.get_session() as session:
-        course = process_course(session)
-        enrollments_map = process_enrollment(course_num_to_import, course.id, session, config)
-        curators_map = process_curators(session, config)
-        groups_map = process_groups(enrollments_map, curators_map, session, config)
-        process_students(groups_map, session, config)
+        for course_num_to_import, course_slug_to_import, is_advanced in [
+            (29, "29", False),
+            (2, "Adv: 2", True),
+        ]:
+            course = process_course(session, is_advanced)
+            enrollments_map = process_enrollment(
+                course_num_to_import,
+                course_slug_to_import,
+                course.id,
+                session,
+                config,
+            )
+            curators_map = process_curators(session, config)
+            groups_map = process_groups(enrollments_map, curators_map, session, config)
+            process_students(groups_map, session, config)
