@@ -14,6 +14,7 @@ from learn_bot.db.fetchers import (
     fetch_oldest_pending_assignment_for_curator,
 )
 from learn_bot.db.utils.urls import is_github_pull_request_url
+from learn_bot.enums import Gender
 from learn_bot.markups import (
     compose_curator_assignment_pull_request_check_markup,
     compose_curator_assignments_list_markup,
@@ -21,6 +22,7 @@ from learn_bot.markups import (
 from learn_bot.screenplay.custom_types import ActResult
 from learn_bot.screenplay.db.models.user import User
 from learn_bot.services.assignment import handle_assignment_checked
+from learn_bot.services.gender_guesser import guess_gender
 
 
 def list_pending_assignments(
@@ -105,9 +107,14 @@ def check_oldest_pending_assignment(
     )
     replay_markup = compose_curator_assignment_pull_request_check_markup() if is_pr else None
 
+    verb = (
+        "сдал"
+        if guess_gender(assignment.student.first_name, assignment.student.last_name) == Gender.MALE
+        else "сдала"
+    )
     return ActResult(
         messages=[
-            f"{assignment.student.full_name} сдал работу: {assignment.url}",
+            f"{assignment.student.full_name} {verb} работу: {assignment.url}",
             check_note,
         ],
         screenplay_id="curator.check_assignment",
@@ -147,7 +154,12 @@ def finished_assignment_check(
                 statuses=[AssignmentStatus.READY_FOR_REVIEW],
                 session=session,
         ):
-            message = f"Ещё {len(assignments)} заданий ждёт ревью. Скажи /check когда будешь готов начать их проверять"
+            verb = (
+                "готов"
+                if guess_gender(curator.first_name, curator.last_name) == Gender.MALE
+                else "готова"
+            )
+            message = f"Ещё {len(assignments)} заданий ждёт ревью. Скажи /check когда будешь {verb} начать их проверять"
         else:
             message = "Кроме этой работы у тебя нет работ на проверку."
         return ActResult(

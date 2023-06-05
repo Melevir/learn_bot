@@ -15,8 +15,10 @@ from learn_bot.db.fetchers import (
     fetch_all_assignments_for_student_in_period,
     fetch_students_in_group,
 )
+from learn_bot.enums import Gender
 from learn_bot.screenplay.custom_types import ActResult
 from learn_bot.screenplay.db.models.user import User
+from learn_bot.services.gender_guesser import guess_gender
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
@@ -24,7 +26,7 @@ class AssignmentGroupStat:
     course_name: str
     date_from: datetime.date
     date_to: datetime.date
-    students_stat: Mapping[str, int]
+    students_stat: Mapping[tuple[str, str], int]
 
 
 def show_weekly_students_report(
@@ -66,7 +68,7 @@ def _compose_assignment_stat_for_group(
     students_stat = {}
     for student in fetch_students_in_group(group, session):
         assignments = fetch_all_assignments_for_student_in_period(student, date_from, date_to, session)
-        students_stat[student.full_name] = len(assignments)
+        students_stat[(student.first_name, student.last_name)] = len(assignments)
     return AssignmentGroupStat(
         course_name=group.enrollment.course.title,
         date_from=date_from,
@@ -78,10 +80,16 @@ def _compose_assignment_stat_for_group(
 def _compose_assignment_stat_message(group_stats: list[AssignmentGroupStat]) -> str:
     lines = []
     for stat in group_stats:
-        lines.append(f"Статистика в вашей группе курса {stat.course_name} с {stat.date_from} по {stat.date_to}:")
+        lines.append(f"Статистика в твоей группе курса {stat.course_name} с {stat.date_from} по {stat.date_to}:")
         students_stat = sorted(stat.students_stat.items(), key=operator.itemgetter(1), reverse=True)
-        for student_name, submitted_assignments_num in students_stat:
+        for (student_first_name, student_last_name), submitted_assignments_num in students_stat:
+            student_full_name = f"{student_first_name} {student_last_name}"
             status = random.choice("👍🥳😎🤓💯") if submitted_assignments_num else random.choice("👎😕😖😡😨💣")
-            lines.append(f" - {student_name} сдал(а) {submitted_assignments_num} работ {status}")
+            verb = (
+                "сдал"
+                if guess_gender(student_first_name, student_last_name) == Gender.MALE
+                else "сдала"
+            )
+            lines.append(f" - {student_full_name} {verb} {submitted_assignments_num} работ {status}")
         lines.append("")
     return "\n".join(lines)
