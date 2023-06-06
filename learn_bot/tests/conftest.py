@@ -84,20 +84,25 @@ def db_engine(bot: Bot) -> Engine:
 
 @pytest.fixture
 def db_session(bot: Bot) -> Iterable[Session]:
+    models = [
+        AssignmentStatusHistory,
+        Assignment,
+        ChatMessage,
+        ScreenplayContext,
+        Student,
+        Group,
+        Curator,
+        User,
+        Enrollment,
+        Course,
+    ]
+
     with bot.get_session() as session:
+        for model in models:
+            delete_all_records_from(model, session)
+
         yield session
-        models = [
-            AssignmentStatusHistory,
-            Assignment,
-            ChatMessage,
-            ScreenplayContext,
-            Student,
-            Group,
-            Curator,
-            User,
-            Enrollment,
-            Course,
-        ]
+
         for model in models:
             delete_all_records_from(model, session)
 

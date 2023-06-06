@@ -3,7 +3,7 @@ from telebot.types import Message, ReplyKeyboardRemove
 from learn_bot.bot import Bot
 from learn_bot.config import BotConfig
 from learn_bot.db.changers import update_contacts
-from learn_bot.screenplay.custom_types import ActResult
+from learn_bot.screenplay.custom_types import ActResult, TelegramMessageDescription
 from learn_bot.screenplay.db.changers import clean_screenplay_context, update_active_act_for, update_screenplay_context
 from learn_bot.screenplay.db.fetchers import fetch_active_act_for, fetch_screenplay_context
 from learn_bot.screenplay.db.models.user import User
@@ -54,11 +54,21 @@ def _handle_act_result(
     screenplay_id: str,
 ) -> None:
     if act_result.messages:
-        for message_text in act_result.messages:
+        for message_description in act_result.messages:
+            message_text = None
+            reply_to_message_id = None
+            if isinstance(message_description, str):
+                message_text = message_description
+            elif isinstance(message_description, TelegramMessageDescription):
+                message_text = message_description.text
+                reply_to_message_id = message_description.reply_to_message_id
+            assert message_text
+
             bot.send_message(
                 message.chat.id,
                 message_text,
                 reply_markup=act_result.replay_markup or ReplyKeyboardRemove(),
+                reply_to_message_id=reply_to_message_id,
             )
     with bot.get_session() as session:
         if act_result.context:

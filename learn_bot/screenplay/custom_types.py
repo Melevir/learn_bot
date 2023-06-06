@@ -1,5 +1,5 @@
 import dataclasses
-from typing import Callable, Mapping
+from typing import Callable, Mapping, Sequence
 
 from sqlalchemy.orm import Session
 from telebot.types import InlineKeyboardMarkup, Message, ReplyKeyboardMarkup
@@ -12,10 +12,16 @@ from learn_bot.screenplay.db.models.user import User
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
+class TelegramMessageDescription:
+    text: str
+    reply_to_message_id: int | None = None
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
 class ActResult:
     screenplay_id: str | None = None
     act_id: str | None = None
-    messages: list[str] | None = None
+    messages: Sequence[str | TelegramMessageDescription] | None = None
     replay_markup: ReplyKeyboardMarkup | InlineKeyboardMarkup | None = None
     context: Mapping[str, str] | None = None
     is_screenplay_over: bool = False

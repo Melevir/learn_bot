@@ -140,6 +140,7 @@ def finished_assignment_check(
 
     if message.text != "Готово":
         assignment.curator_feedback = message.text
+        assignment.review_message_id_in_curator_chat = message.id
     assignment.status = AssignmentStatus.REVIEWED
     update(assignment, session)
     create(

@@ -20,6 +20,7 @@ class Assignment(TimestampsMixin, Base):
     url: Mapped[str] = mapped_column(String(length=512))
     status: Mapped[AssignmentStatus] = mapped_column(Enum(AssignmentStatus))
     curator_feedback: Mapped[str | None] = mapped_column(Text(), nullable=True)
+    review_message_id_in_curator_chat: Mapped[str | None] = mapped_column(String(length=512))
 
     student_id: Mapped[int] = mapped_column(ForeignKey("student.id"))
 
