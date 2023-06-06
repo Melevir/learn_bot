@@ -93,8 +93,22 @@ def create_assignment(
             "Если хочешь сдать ещё одну работу, повтори команду /submit",
         ]
     )
+
+    same_url_assignments = fetch_assignments_by_url(
+        assignment_url,
+        student_id=student.id,
+        statuses={AssignmentStatus.REVIEWED},
+        session=session,
+    )
+    rereview_for = same_url_assignments[-1] if same_url_assignments else None
+
     assignment = cast(Assignment, create(
-        Assignment(url=assignment_url, student_id=student.id, status=AssignmentStatus.READY_FOR_REVIEW),
+        Assignment(
+            url=assignment_url,
+            student_id=student.id,
+            status=AssignmentStatus.READY_FOR_REVIEW,
+            is_rereview_for=rereview_for.id if rereview_for else None,
+        ),
         session,
     ))
     create(
