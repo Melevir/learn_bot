@@ -19,7 +19,7 @@ from learn_bot.markups import (
     compose_curator_assignment_pull_request_check_markup,
     compose_curator_assignments_list_markup,
 )
-from learn_bot.screenplay.custom_types import ActResult
+from learn_bot.screenplay.custom_types import ActResult, TelegramMessageDescription
 from learn_bot.screenplay.db.models.user import User
 from learn_bot.services.assignment import handle_assignment_checked
 from learn_bot.services.gender_guesser import guess_gender
@@ -112,11 +112,24 @@ def check_oldest_pending_assignment(
         if guess_gender(assignment.student.first_name, assignment.student.last_name) == Gender.MALE
         else "сдала"
     )
+    messages: list[str | TelegramMessageDescription] = [
+        f"{assignment.student.full_name} {verb} работу: {assignment.url}",
+        check_note,
+    ]
+    if assignment.is_rereview_for:
+        base_assignment = fetch_assignment_by_id(assignment.is_rereview_for, session)
+        assert base_assignment
+
+        if base_assignment and base_assignment.review_message_id_in_curator_chat:
+            messages.append(
+                TelegramMessageDescription(
+                    text="Это повторное ревью. Вот ревью предыдущей итерации.",
+                    reply_to_message_id=int(base_assignment.review_message_id_in_curator_chat),
+                ),
+            )
+
     return ActResult(
-        messages=[
-            f"{assignment.student.full_name} {verb} работу: {assignment.url}",
-            check_note,
-        ],
+        messages=messages,
         screenplay_id="curator.check_assignment",
         act_id="checked",
         replay_markup=replay_markup,
