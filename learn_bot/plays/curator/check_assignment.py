@@ -44,19 +44,24 @@ def list_pending_assignments(
         statuses=[AssignmentStatus.READY_FOR_REVIEW],
         session=session,
     ):
+        secondary_assignments_amount = len([a for a in assignments if a.is_rereview_for])
+        message_postfix = (
+            f" (из них {secondary_assignments_amount} на повторное ревью)"
+            if secondary_assignments_amount else ""
+        )
         return ActResult(
-            messages=[f"У тебя {len(assignments)} заданий на проверку"],
+            messages=[f"У тебя {len(assignments)} заданий на проверку{message_postfix}"],
             screenplay_id="curator.check_assignment",
             act_id="start",
             replay_markup=compose_curator_assignments_list_markup(),
         )
-    else:
-        return ActResult(
-            messages=["У тебя нет заданий на проверку"],
-            screenplay_id=None,
-            act_id=None,
-            is_screenplay_over=True,
-        )
+
+    return ActResult(
+        messages=["У тебя нет заданий на проверку"],
+        screenplay_id=None,
+        act_id=None,
+        is_screenplay_over=True,
+    )
 
 
 def start_assignments_check(
