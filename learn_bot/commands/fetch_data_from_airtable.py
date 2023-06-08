@@ -120,7 +120,6 @@ def run(bot: Bot, config: BotConfig) -> None:
     with bot.get_session() as session:
         for course_num_to_import, course_slug_to_import, is_advanced in [
             (29, "29", False),
-            (2, "Adv: 2", True),
         ]:
             course = process_course(session, is_advanced)
             enrollments_map = process_enrollment(
