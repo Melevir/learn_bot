@@ -37,7 +37,7 @@ def handle_new_assignment(assignment: Assignment, bot: Bot) -> None:
         logger.error(f"Not found curator telegram_chat_id ({curator.telegram_nickname})")
 
 
-def handle_assignment_checked(assignment: Assignment, bot: Bot) -> None:
+def handle_assignment_checked(assignment: Assignment, bot: Bot) -> int | None:
     curator = assignment.student.group.curator
     verb = "проверил" if guess_gender(curator.first_name, curator.last_name) == Gender.MALE else "проверила"
     if assignment.curator_feedback:
@@ -56,6 +56,8 @@ def handle_assignment_checked(assignment: Assignment, bot: Bot) -> None:
             or fetch_user_by_chat_id(assignment.student.telegram_chat_id, session)
         )
     if student_user and student_user.telegram_chat_id:
-        bot.send_message(student_user.telegram_chat_id, message)
+        sent_message = bot.send_message(student_user.telegram_chat_id, message)
+        return sent_message.id
     else:
         logger.error(f"Not found student telegram_chat_id ({assignment.student.telegram_nickname})")
+    return None

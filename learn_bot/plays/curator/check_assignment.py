@@ -165,7 +165,9 @@ def finished_assignment_check(
         AssignmentStatusHistory(new_status=AssignmentStatus.REVIEWED, assignment_id=assignment.id),
         session,
     )
-    handle_assignment_checked(assignment, bot)
+    if sent_message_id := handle_assignment_checked(assignment, bot):
+        assignment.review_message_id_in_student_chat = str(sent_message_id)
+        update(assignment, session)
 
     if context.get("check_single_assignment"):
         if assignments := fetch_assignments_for_curator(

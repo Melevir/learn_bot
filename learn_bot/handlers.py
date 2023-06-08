@@ -75,3 +75,7 @@ def callback_query_handler(call: CallbackQuery, bot: Bot, config: BotConfig) -> 
         assert play_request
 
         process_play_request(play_request, user, call.message, bot, config, session)
+
+
+def edited_message_handler(message: Message, bot: Bot, config: BotConfig) -> None:
+    return
