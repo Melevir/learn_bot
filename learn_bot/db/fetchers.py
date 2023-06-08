@@ -206,11 +206,37 @@ def find_similar_group(group: Group, session: Session) -> Group | None:
     )
 
 
-def find_similar_student(student: Student, session: Session) -> Student | None:
-    return session.scalar(
+def find_similar_student(student: Student, session: Session) -> Student | None:  # noqa: CFQ004
+    same_auth_code_student = session.scalar(
         select(Student).where(
-            Student.first_name == student.first_name,
-            Student.last_name == student.last_name,
-            Student.group_id == student.group_id,
+            Student.auth_code == student.auth_code,
         ),
-    )
+    ) if student.auth_code else None
+    if same_auth_code_student:
+        return same_auth_code_student
+
+    same_tg_nickname_student = session.scalar(
+        select(Student).where(
+            Student.telegram_nickname == student.telegram_nickname,
+        ),
+    ) if student.telegram_nickname else None
+    if same_tg_nickname_student:
+        return same_tg_nickname_student
+
+    same_email_student = session.scalar(
+        select(Student).where(
+            Student.email == student.email,
+        ),
+    ) if student.email else None
+    if same_email_student:
+        return same_email_student
+
+    same_timepad_id_student = session.scalar(
+        select(Student).where(
+            Student.timepad_id == student.timepad_id,
+        ),
+    ) if student.timepad_id else None
+    if same_timepad_id_student:
+        return same_timepad_id_student
+
+    return None

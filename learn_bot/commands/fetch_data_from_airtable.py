@@ -110,6 +110,8 @@ def process_students(
             telegram_nickname=telegram_nickname,
             group_id=groups_map[student["fields"]["group"][0]],
             auth_code=student["fields"]["bot_auth_code"],
+            email=student["fields"]["email"],
+            timepad_id=str(student["fields"]["timepad_id"]),
         )
         db_student = cast(Student, create_or_update(db_student, session))
 
