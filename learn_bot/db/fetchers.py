@@ -191,8 +191,6 @@ def find_similar_enrollment(enrollment: Enrollment, session: Session) -> Enrollm
         select(Enrollment).where(
             Enrollment.course_id == enrollment.course_id,
             Enrollment.number == enrollment.number,
-            Enrollment.date_start == enrollment.date_start,
-            Enrollment.date_end == enrollment.date_end,
         ),
     )
 
