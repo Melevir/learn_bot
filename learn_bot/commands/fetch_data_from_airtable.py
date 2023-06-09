@@ -48,11 +48,12 @@ def process_curators(session: Session, config: BotConfig) -> Mapping[str, int]:
     curators = curators_table.all()  # type: ignore[no-untyped-call]
     curators_map = {}
     for curator in curators:
+        telegram_nickname = _clear_tg_nickname(curator["fields"]["telegram"])
         first_name, last_name = curator["fields"]["courator"].strip().split(" ")
         db_curator = Curator(
             first_name=first_name,
             last_name=last_name,
-            telegram_nickname=curator["fields"]["telegram"].strip("@-"),
+            telegram_nickname=telegram_nickname,
         )
         db_curator = cast(Curator, create_or_update(db_curator, session))
         curators_map[curator["id"]] = db_curator.id
@@ -114,6 +115,12 @@ def process_students(
             timepad_id=str(student["fields"]["timepad_id"]),
         )
         db_student = cast(Student, create_or_update(db_student, session))
+
+
+def _clear_tg_nickname(raw_tg_nickname: str) -> str:
+    if raw_tg_nickname.startswith("https://t.me/"):
+        raw_tg_nickname = raw_tg_nickname.split("/")[-1]
+    return raw_tg_nickname.lower().strip("@-")
 
 
 def run(bot: Bot, config: BotConfig) -> None:
